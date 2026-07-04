@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>BeyondSchool PPDB — UI Materials Style Guide</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: {
+            DEFAULT: "#004ac6", container: "#2563eb", hover: "#1d4ed8", fixed: "#dbe1ff", foreground: "#FFFFFF",
+            50: "#eff3ff", 100: "#dbe1ff", 200: "#b4c5ff", 300: "#7d9bff", 400: "#4d6ef5", 500: "#2563eb", 600: "#004ac6", 700: "#003ea8", 800: "#00174b",
+          },
+          secondary: { DEFAULT: "#515f74", container: "#d5e3fd", fixed: "#d5e3fd", hover: "#3a485c", foreground: "#FFFFFF" },
+          success: { DEFAULT: "#16A34A", foreground: "#FFFFFF", bg: "#F0FDF4", border: "#BBF7D0" },
+          warning: { DEFAULT: "#F59E0B", foreground: "#FFFFFF", bg: "#FFFBEB", border: "#FDE68A" },
+          danger:  { DEFAULT: "#DC2626", foreground: "#FFFFFF", bg: "#FEF2F2", border: "#FECACA" },
+          info:    { DEFAULT: "#2563EB", foreground: "#FFFFFF", bg: "#EFF6FF", border: "#BFDBFE" },
+          surface: {
+            DEFAULT: "#faf8ff", bright: "#faf8ff", dim: "#F8FAFC", container: "#ededf9",
+            "container-low": "#f3f3fe", "container-high": "#e7e7f3", "container-highest": "#e1e2ed", "container-lowest": "#ffffff",
+          },
+          outline: { DEFAULT: "#737686", variant: "#c3c6d7" },
+          border: "#E2E8F0",
+          background: "#F8FAFC",
+          foreground: "#0F172A",
+          muted: { DEFAULT: "#F1F5F9", foreground: "#64748B" },
+        },
+        spacing: { sidebar: "260px", navbar: "72px" },
+        fontFamily: { sans: ["Inter", "system-ui", "sans-serif"], mono: ["JetBrains Mono", "monospace"] },
+        fontSize: {
+          display: ["36px", { lineHeight: "44px", fontWeight: "700", letterSpacing: "-0.02em" }],
+          "headline-lg": ["28px", { lineHeight: "36px", fontWeight: "600", letterSpacing: "-0.01em" }],
+          "headline-md": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+          "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+          "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+          "label-md": ["12px", { lineHeight: "16px", fontWeight: "500", letterSpacing: "0.05em" }],
+        },
+        boxShadow: {
+          "soft-drop": "0px 1px 3px rgba(0,0,0,0.1), 0px 10px 20px rgba(0,0,0,0.02)",
+        },
+      },
+    },
+  };
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  .swatch { width: 100%; height: 3.5rem; border-radius: 0.5rem; border: 1px solid rgba(0,0,0,0.06); }
+  .section-anchor { scroll-margin-top: 90px; }
+  ::-webkit-scrollbar { height: 8px; width: 8px; }
+  ::-webkit-scrollbar-thumb { background: #c3c6d7; border-radius: 9999px; }
+</style>
+</head>
+<body class="bg-background text-foreground">
+
+<!-- ============ TOP NAV ============ -->
+<header class="sticky top-0 z-50 h-16 bg-white border-b border-border flex items-center justify-between px-6 shadow-sm">
+  <div class="flex items-center gap-2">
+    <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center"><i data-lucide="layout-dashboard" class="w-4 h-4 text-white"></i></div>
+    <span class="font-bold">UI Materials — BeyondSchool PPDB</span>
+  </div>
+  <p class="text-xs text-muted-foreground hidden md:block">Generated from 12 mockups in <code class="bg-surface-container-low px-1.5 py-0.5 rounded">../desain/</code> — local reference only, not shipped to production.</p>
+</header>
+
+<div class="flex">
+  <!-- ============ SIDE TOC ============ -->
+  <nav class="hidden lg:block w-64 shrink-0 h-[calc(100vh-4rem)] sticky top-16 overflow-y-auto border-r border-border bg-white p-4 space-y-1 text-sm">
+    <a href="#colors" class="block px-3 py-2 rounded-lg hover:bg-surface-container-low text-muted-foreground hover:text-primary">Colors</a>
+    <a href="#typography" class="block px-3 py-2 rounded-lg hover:bg-surface-container-low text-muted-foreground hover:text-primary">Typography</a>
+    <a href="#buttons" class="block px-3 py-2 rounded-lg hover:bg-surface-container-low text-muted-foreground hover:text-primary">Buttons &amp; Tabs</a>
+    <a href="#badges" class="block px-3 py-2 rounded-lg hover:bg-surface-container-low text-muted-foreground hover:text-primary">Badges &amp; Icon Chips</a>
+    <a href="#cards" class="block px-3 py-2 rounded-lg hover:bg-surface-container-low text-muted-foreground hover:text-primary">Cards</a>
+    <a href="#forms" class="block px-3 py-2 rounded-lg hover:bg-surface-container-low text-muted-foreground hover:text-primary">Forms &amp; Inputs</a>
+    <a href="#progress" class="block px-3 py-2 rounded-lg hover:bg-surface-container-low text-muted-foreground hover:text-primary">Stepper &amp; Timeline</a>
+    <a href="#upload" class="block px-3 py-2 rounded-lg hover:bg-surface-container-low text-muted-foreground hover:text-primary">Document Upload</a>
+    <a href="#nav" class="block px-3 py-2 rounded-lg hover:bg-surface-container-low text-muted-foreground hover:text-primary">Sidebar Nav</a>
+    <a href="#data" class="block px-3 py-2 rounded-lg hover:bg-surface-container-low text-muted-foreground hover:text-primary">Table &amp; Payment</a>
+    <a href="#feedback" class="block px-3 py-2 rounded-lg hover:bg-surface-container-low text-muted-foreground hover:text-primary">Feedback &amp; Overlays</a>
+  </nav>
+
+  <!-- ============ MAIN CONTENT ============ -->
+  <main class="flex-1 min-w-0 p-6 md:p-10 space-y-16 max-w-6xl">
+
+    <!-- COLORS -->
+    <section id="colors" class="section-anchor">
+      <h2 class="text-headline-lg mb-1">Colors</h2>
+      <p class="text-body-md text-muted-foreground mb-6">Canonical values from <code class="bg-surface-container-low px-1 rounded">tailwind.config.ts</code>. Mockups used inconsistent near-duplicates of these — always build against this palette, not the mockup HTML's inline hex values.</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div><div class="swatch bg-primary"></div><p class="text-xs mt-1 font-semibold">primary</p><p class="text-[11px] text-muted-foreground">#004ac6</p></div>
+        <div><div class="swatch bg-primary-hover"></div><p class="text-xs mt-1 font-semibold">primary-hover</p><p class="text-[11px] text-muted-foreground">#1d4ed8</p></div>
+        <div><div class="swatch bg-primary-container"></div><p class="text-xs mt-1 font-semibold">primary-container</p><p class="text-[11px] text-muted-foreground">#2563eb</p></div>
+        <div><div class="swatch bg-secondary"></div><p class="text-xs mt-1 font-semibold">secondary</p><p class="text-[11px] text-muted-foreground">#515f74</p></div>
+        <div><div class="swatch bg-secondary-container"></div><p class="text-xs mt-1 font-semibold">secondary-container</p><p class="text-[11px] text-muted-foreground">#d5e3fd</p></div>
+        <div><div class="swatch bg-success"></div><p class="text-xs mt-1 font-semibold">success</p><p class="text-[11px] text-muted-foreground">#16A34A</p></div>
+        <div><div class="swatch bg-warning"></div><p class="text-xs mt-1 font-semibold">warning</p><p class="text-[11px] text-muted-foreground">#F59E0B</p></div>
+        <div><div class="swatch bg-danger"></div><p class="text-xs mt-1 font-semibold">danger</p><p class="text-[11px] text-muted-foreground">#DC2626</p></div>
+        <div><div class="swatch bg-info"></div><p class="text-xs mt-1 font-semibold">info</p><p class="text-[11px] text-muted-foreground">#2563EB</p></div>
+        <div><div class="swatch bg-surface-container-low border border-border"></div><p class="text-xs mt-1 font-semibold">surface-container-low</p><p class="text-[11px] text-muted-foreground">#f3f3fe</p></div>
+        <div><div class="swatch bg-surface-container-high border border-border"></div><p class="text-xs mt-1 font-semibold">surface-container-high</p><p class="text-[11px] text-muted-foreground">#e7e7f3</p></div>
+        <div><div class="swatch bg-outline-variant border border-border"></div><p class="text-xs mt-1 font-semibold">outline-variant</p><p class="text-[11px] text-muted-foreground">#c3c6d7</p></div>
+      </div>
+    </section>
+
+    <!-- TYPOGRAPHY -->
+    <section id="typography" class="section-anchor">
+      <h2 class="text-headline-lg mb-1">Typography</h2>
+      <p class="text-body-md text-muted-foreground mb-6">Inter for UI text, JetBrains Mono for codes/IDs (registration numbers, VA numbers).</p>
+      <div class="bg-white border border-border rounded-xl p-6 space-y-3">
+        <p class="text-display">Display 36/700</p>
+        <p class="text-headline-lg">Headline LG 28/600</p>
+        <p class="text-headline-md">Headline MD 20/600</p>
+        <p class="text-body-lg">Body LG 16/400 — Lengkapi sisa langkah pendaftaran Anda untuk melanjutkan proses seleksi.</p>
+        <p class="text-body-md">Body MD 14/400 — Pastikan seluruh data yang Anda masukkan sesuai dokumen resmi.</p>
+        <p class="text-label-md uppercase text-muted-foreground">Label MD 12/500 tracked</p>
+        <p class="font-mono text-body-md">REG-2024-08912 (mono, for codes/IDs)</p>
+      </div>
+    </section>
+
+    <!-- BUTTONS & TABS -->
+    <section id="buttons" class="section-anchor">
+      <h2 class="text-headline-lg mb-1">Buttons &amp; Tabs</h2>
+      <p class="text-body-md text-muted-foreground mb-6">All variants seen across the 12 mockups, redrawn with corrected tokens.</p>
+      <div class="bg-white border border-border rounded-xl p-6 space-y-8">
+        <div class="flex flex-wrap gap-3 items-center">
+          <button class="px-5 py-2.5 bg-primary text-white rounded-lg font-semibold hover:bg-primary-hover transition-colors shadow-soft-drop">Primary</button>
+          <button class="px-5 py-2.5 bg-white border border-border text-foreground rounded-lg font-semibold hover:bg-surface-container-low transition-colors">Secondary / Outline</button>
+          <button class="px-5 py-2.5 text-primary rounded-lg font-semibold hover:bg-primary/5 transition-colors">Ghost / Text</button>
+          <button class="px-5 py-2.5 bg-danger text-white rounded-lg font-semibold hover:bg-danger/90 transition-colors">Danger</button>
+          <button class="px-5 py-2.5 bg-foreground text-white rounded-lg font-semibold hover:opacity-90 transition-colors">Inverse (FAQ page CTA)</button>
+          <button disabled class="px-5 py-2.5 bg-primary/40 text-white rounded-lg font-semibold cursor-not-allowed">Disabled (not in mockups — design gap)</button>
+          <button class="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-surface-container-low"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+        </div>
+        <div>
+          <p class="text-label-md uppercase text-muted-foreground mb-2">Segmented pill tabs (login role toggle) — ❌ not built yet</p>
+          <div class="inline-flex p-1 bg-surface-container-low rounded-lg">
+            <button class="px-4 py-2 text-sm font-semibold rounded-md bg-white shadow-sm text-primary">Calon Siswa</button>
+            <button class="px-4 py-2 text-sm font-semibold rounded-md text-muted-foreground hover:text-primary">Administrator</button>
+          </div>
+        </div>
+        <div>
+          <p class="text-label-md uppercase text-muted-foreground mb-2">Underline tabs (settings page)</p>
+          <div class="flex gap-8 border-b border-border">
+            <button class="pb-3 text-sm font-semibold border-b-2 border-primary text-primary">Security &amp; Password</button>
+            <button class="pb-3 text-sm font-semibold border-b-2 border-transparent text-muted-foreground hover:text-foreground">Notifications</button>
+            <button class="pb-3 text-sm font-semibold border-b-2 border-transparent text-muted-foreground hover:text-foreground">Privacy</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BADGES -->
+    <section id="badges" class="section-anchor">
+      <h2 class="text-headline-lg mb-1">Badges &amp; Icon Chips</h2>
+      <div class="bg-white border border-border rounded-xl p-6 space-y-6">
+        <div class="flex flex-wrap gap-3">
+          <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-success/10 text-success">Selesai / Valid</span>
+          <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-warning/10 text-warning">Menunggu / Revisi</span>
+          <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-danger text-white">Ditolak (solid, high severity)</span>
+          <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-surface-container-highest text-muted-foreground">Belum Aktif / Pending</span>
+          <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-info/10 text-info">Informasi</span>
+          <span class="relative inline-flex px-4 py-1 rounded-full text-[10px] font-bold uppercase bg-primary text-white -translate-y-1">Populer (ribbon)</span>
+        </div>
+        <div>
+          <p class="text-label-md uppercase text-muted-foreground mb-2">Icon chip (reused across StatCard, contact tiles, doc rows)</p>
+          <div class="flex flex-wrap gap-4">
+            <div class="p-3 bg-success/10 text-success rounded-lg"><i data-lucide="file-check" class="w-5 h-5"></i></div>
+            <div class="p-3 bg-primary/10 text-primary rounded-lg"><i data-lucide="wallet" class="w-5 h-5"></i></div>
+            <div class="p-3 bg-warning/10 text-warning rounded-lg"><i data-lucide="clock" class="w-5 h-5"></i></div>
+            <div class="p-3 bg-danger/10 text-danger rounded-lg"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
+            <div class="p-3 bg-surface-container-highest text-muted-foreground rounded-lg"><i data-lucide="calendar-check" class="w-5 h-5"></i></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CARDS -->
+    <section id="cards" class="section-anchor">
+      <h2 class="text-headline-lg mb-1">Cards</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+
+        <!-- Hero banner -->
+        <div class="md:col-span-2 relative overflow-hidden rounded-xl p-8 bg-primary-container text-white flex flex-col md:flex-row justify-between items-center gap-6 shadow-soft-drop">
+          <div class="relative z-10 space-y-2">
+            <span class="px-2 py-1 bg-white/20 rounded-full text-xs uppercase tracking-wider">Status Akun: Aktif</span>
+            <h3 class="text-headline-lg">Selamat Datang, Raditya!</h3>
+            <p class="text-body-md opacity-90 max-w-md">Lengkapi sisa langkah pendaftaran Anda untuk melanjutkan proses seleksi.</p>
+          </div>
+          <div class="relative z-10 flex gap-3">
+            <button class="bg-white text-primary px-5 py-2.5 rounded-lg font-bold">Lengkapi Formulir</button>
+            <button class="bg-primary-hover text-white border border-white/20 px-5 py-2.5 rounded-lg font-bold">Panduan Seleksi</button>
+          </div>
+          <div class="absolute -right-16 -top-16 w-56 h-56 bg-white/10 rounded-full blur-3xl"></div>
+        </div>
+
+        <!-- Composite status card: action required -->
+        <div class="bg-white rounded-xl border-2 border-primary p-5 shadow-sm">
+          <div class="flex justify-between items-start mb-4">
+            <div class="p-2 bg-primary/10 text-primary rounded-lg"><i data-lucide="wallet" class="w-5 h-5"></i></div>
+            <span class="px-2 py-1 bg-warning/10 text-warning text-[11px] font-bold rounded-full">Menunggu</span>
+          </div>
+          <h4 class="font-bold">Tagihan Pembayaran</h4>
+          <p class="text-sm text-muted-foreground mt-1">Rp 500.000 - Biaya Pendaftaran &amp; Tes.</p>
+          <button class="w-full mt-4 bg-primary text-white py-2 rounded-lg text-sm font-bold hover:bg-primary-hover">Bayar Sekarang</button>
+        </div>
+
+        <!-- Composite status card: done + link -->
+        <div class="bg-white rounded-xl border border-border p-5 shadow-sm hover:border-primary/30 transition-all group">
+          <div class="flex justify-between items-start mb-4">
+            <div class="p-2 bg-success/10 text-success rounded-lg"><i data-lucide="file-text" class="w-5 h-5"></i></div>
+            <span class="px-2 py-1 bg-success/10 text-success text-[11px] font-bold rounded-full">Selesai</span>
+          </div>
+          <h4 class="font-bold">Data Formulir</h4>
+          <p class="text-sm text-muted-foreground mt-1">Data profil dan orang tua telah lengkap.</p>
+          <button class="mt-4 text-primary text-sm flex items-center gap-1 font-bold group-hover:underline">Lihat Detail <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+        </div>
+
+        <!-- Bento feature card (Jenjang) -->
+        <div class="group bg-white border border-border rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1">
+          <div class="bg-surface-container-low p-4 rounded-lg mb-4 flex justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+            <i data-lucide="graduation-cap" class="w-10 h-10"></i>
+          </div>
+          <h4 class="font-bold mb-1">SMA / SMK</h4>
+          <div class="space-y-1 mb-4 text-sm text-muted-foreground">
+            <div class="flex justify-between"><span>Kuota:</span><span class="font-semibold text-foreground">200</span></div>
+          </div>
+          <button class="w-full py-2 border border-primary text-primary rounded-lg text-sm font-semibold hover:bg-primary hover:text-white transition-all">Lihat Detail</button>
+        </div>
+
+        <!-- Notice/Callout -->
+        <div class="bg-info/5 border border-info/20 rounded-xl p-5 flex gap-4">
+          <i data-lucide="info" class="w-5 h-5 text-info shrink-0"></i>
+          <div>
+            <p class="font-semibold text-sm">Cek Email Konfirmasi</p>
+            <p class="text-sm text-muted-foreground">Kami telah mengirimkan detail pendaftaran ke email Anda.</p>
+          </div>
+        </div>
+
+        <!-- Danger zone -->
+        <div class="bg-danger/5 border border-danger/20 rounded-xl p-5">
+          <h4 class="font-bold text-danger mb-1">Danger Zone</h4>
+          <p class="text-sm text-muted-foreground mb-4">Setelah akun dihapus, data tidak dapat dikembalikan.</p>
+          <button class="px-5 py-2 bg-danger text-white rounded-lg text-sm font-bold hover:bg-danger/90">Nonaktifkan Akun</button>
+          <p class="text-[11px] text-muted-foreground mt-2">⚠ Mockup has no confirmation step — wire to <code>ConfirmDialog</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORMS -->
+    <section id="forms" class="section-anchor">
+      <h2 class="text-headline-lg mb-1">Forms &amp; Inputs</h2>
+      <div class="bg-white border border-border rounded-xl p-6 grid md:grid-cols-2 gap-6">
+        <div class="space-y-1.5">
+          <label class="text-sm font-semibold">Default</label>
+          <input class="w-full px-4 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" placeholder="Nama lengkap" />
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-sm font-semibold">With leading icon</label>
+          <div class="relative">
+            <i data-lucide="user" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-outline"></i>
+            <input class="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="NISN / Email" />
+          </div>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-sm font-semibold">Success / validated</label>
+          <div class="relative">
+            <input class="w-full px-4 py-2.5 border border-success rounded-lg pr-10 focus:ring-2 focus:ring-success outline-none" value="Budi Santoso" readonly />
+            <i data-lucide="check-circle-2" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-success"></i>
+          </div>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-sm font-semibold">Error <span class="text-[11px] text-muted-foreground font-normal">(❌ not in any mockup — design gap)</span></label>
+          <div class="relative">
+            <input class="w-full px-4 py-2.5 border border-danger rounded-lg pr-10 focus:ring-2 focus:ring-danger outline-none" value="12345" />
+            <i data-lucide="alert-circle" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-danger"></i>
+          </div>
+          <p class="text-xs text-danger">NISN harus 10 digit angka.</p>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-sm font-semibold">Password w/ show/hide</label>
+          <div class="relative">
+            <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-outline"></i>
+            <input type="password" class="w-full pl-10 pr-10 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none" value="password123" />
+            <i data-lucide="eye" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-outline cursor-pointer"></i>
+          </div>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-sm font-semibold">Read-only locked value</label>
+          <div class="px-4 py-2.5 bg-surface-container-low border border-primary rounded-lg text-primary font-medium flex items-center gap-2">
+            <i data-lucide="calendar" class="w-4 h-4"></i> Gelombang 1 (Berakhir 30 Mei 2024)
+          </div>
+        </div>
+        <div class="space-y-1.5 md:col-span-2">
+          <label class="text-sm font-semibold block mb-1">Checkbox chip grid (max-N select)</label>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <label class="flex items-center gap-2 p-2.5 border border-primary bg-primary/5 rounded-lg cursor-pointer text-sm"><input type="checkbox" checked class="accent-primary" /> Pramuka</label>
+            <label class="flex items-center gap-2 p-2.5 border border-border rounded-lg cursor-pointer text-sm hover:border-primary/40"><input type="checkbox" class="accent-primary" /> PMR</label>
+            <label class="flex items-center gap-2 p-2.5 border border-border rounded-lg cursor-pointer text-sm hover:border-primary/40"><input type="checkbox" class="accent-primary" /> Basket</label>
+            <label class="flex items-center gap-2 p-2.5 border border-border rounded-lg cursor-pointer text-sm hover:border-primary/40"><input type="checkbox" class="accent-primary" /> Robotik</label>
+          </div>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-sm font-semibold">Toggle switch <span class="text-[11px] text-muted-foreground font-normal">(use shadcn Switch, not CSS hack)</span></label>
+          <div class="flex items-center gap-3 pt-1">
+            <button class="w-11 h-6 bg-primary rounded-full relative transition-colors">
+              <span class="absolute top-0.5 left-[22px] w-5 h-5 bg-white rounded-full shadow transition-all"></span>
+            </button>
+            <span class="text-sm text-muted-foreground">Assignment deadline reminders</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEPPER / TIMELINE -->
+    <section id="progress" class="section-anchor">
+      <h2 class="text-headline-lg mb-1">Stepper &amp; Timeline</h2>
+      <div class="bg-white border border-border rounded-xl p-6 space-y-10">
+        <div>
+          <p class="text-label-md uppercase text-muted-foreground mb-4">Horizontal stepper (registration progress)</p>
+          <div class="flex items-center w-full">
+            <div class="flex flex-col items-center flex-1 relative">
+              <div class="w-10 h-10 rounded-full bg-success text-white flex items-center justify-center z-10"><i data-lucide="check" class="w-4 h-4"></i></div>
+              <p class="mt-2 text-sm font-bold text-center">Form Lengkap</p>
+              <div class="absolute left-1/2 top-5 w-full h-0.5 bg-success"></div>
+            </div>
+            <div class="flex flex-col items-center flex-1 relative">
+              <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center ring-4 ring-primary/20 z-10"><i data-lucide="wallet" class="w-4 h-4"></i></div>
+              <p class="mt-2 text-sm font-bold text-primary text-center">Pembayaran</p>
+              <div class="absolute left-1/2 top-5 w-full h-0.5 bg-border"></div>
+            </div>
+            <div class="flex flex-col items-center flex-1">
+              <div class="w-10 h-10 rounded-full bg-surface-container-high text-muted-foreground flex items-center justify-center border border-border z-10"><i data-lucide="megaphone" class="w-4 h-4"></i></div>
+              <p class="mt-2 text-sm text-muted-foreground text-center">Pengumuman</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p class="text-label-md uppercase text-muted-foreground mb-4">Vertical timeline (3 states: completed / active / pending)</p>
+          <div class="relative space-y-6">
+            <div class="absolute left-4 top-2 bottom-2 w-0.5 bg-border"></div>
+            <div class="relative flex items-start gap-4 pl-10">
+              <div class="absolute left-0 w-8 h-8 rounded-full bg-success flex items-center justify-center text-white z-10 border-4 border-white shadow"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+              <div><p class="text-sm font-bold">Pengisian Formulir</p><p class="text-xs text-muted-foreground">Selesai 15 Mei 2024</p></div>
+            </div>
+            <div class="relative flex items-start gap-4 pl-10">
+              <div class="absolute left-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white z-10 border-4 border-white shadow ring-4 ring-primary/20"><i data-lucide="bell-ring" class="w-3.5 h-3.5"></i></div>
+              <div><p class="text-sm font-bold text-primary">Pengumuman Kelulusan</p><p class="text-xs text-muted-foreground">Dipublikasikan 12 Juni 2024</p></div>
+            </div>
+            <div class="relative flex items-start gap-4 pl-10 opacity-40">
+              <div class="absolute left-0 w-8 h-8 rounded-full bg-surface-container-highest border border-outline flex items-center justify-center z-10"><i data-lucide="calendar-clock" class="w-3.5 h-3.5"></i></div>
+              <div><p class="text-sm font-bold">Daftar Ulang</p><p class="text-xs text-muted-foreground">Batas Akhir: 20 Juni 2024</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DOCUMENT UPLOAD -->
+    <section id="upload" class="section-anchor">
+      <h2 class="text-headline-lg mb-1">Document Upload Card — 4 states</h2>
+      <p class="text-body-md text-muted-foreground mb-6">A 5th "uploading/in-progress" state does not exist in any mockup — needs fresh design.</p>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="border border-border rounded-xl p-4 flex flex-col gap-3 bg-white">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="h-9 w-9 bg-surface-container rounded-lg flex items-center justify-center text-secondary"><i data-lucide="file-text" class="w-4 h-4"></i></div>
+              <p class="text-sm font-bold">Kartu Keluarga</p>
+            </div>
+          </div>
+          <span class="self-start px-2 py-0.5 bg-success/10 text-success text-[10px] font-bold rounded uppercase">Uploaded</span>
+          <div class="flex items-center justify-between p-2 bg-surface-container-lowest border border-dashed border-border rounded-lg">
+            <span class="text-xs text-muted-foreground truncate">kk_family.pdf</span>
+            <i data-lucide="trash-2" class="w-4 h-4 text-danger cursor-pointer"></i>
+          </div>
+        </div>
+        <div class="border border-border rounded-xl p-4 flex flex-col gap-3 bg-white">
+          <div class="flex items-center gap-3">
+            <div class="h-9 w-9 bg-surface-container rounded-lg flex items-center justify-center text-secondary"><i data-lucide="id-card" class="w-4 h-4"></i></div>
+            <p class="text-sm font-bold">Akte Kelahiran</p>
+          </div>
+          <span class="self-start px-2 py-0.5 bg-warning/10 text-warning text-[10px] font-bold rounded uppercase">Pending</span>
+          <button class="w-full flex items-center justify-center gap-2 py-2 border border-dashed border-primary text-primary rounded-lg hover:bg-primary/5 text-sm font-medium"><i data-lucide="upload-cloud" class="w-4 h-4"></i>Klik untuk Unggah</button>
+        </div>
+        <div class="border border-danger rounded-xl p-4 flex flex-col gap-3 bg-danger/[0.02]">
+          <div class="flex items-center gap-3">
+            <div class="h-9 w-9 bg-danger/10 rounded-lg flex items-center justify-center text-danger"><i data-lucide="id-card" class="w-4 h-4"></i></div>
+            <p class="text-sm font-bold">Pas Foto</p>
+          </div>
+          <span class="self-start px-2 py-0.5 bg-danger text-white text-[10px] font-bold rounded uppercase">Rejected</span>
+          <div class="p-2 bg-danger/5 rounded-lg border border-danger/20 flex gap-2 items-start">
+            <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-danger mt-0.5 shrink-0"></i>
+            <p class="text-[11px] text-danger leading-tight">Foto terlalu buram, unggah ulang.</p>
+          </div>
+          <button class="w-full flex items-center justify-center gap-2 py-2 border border-dashed border-danger text-danger rounded-lg hover:bg-danger/5 text-sm font-medium"><i data-lucide="rotate-ccw" class="w-4 h-4"></i>Unggah Ulang</button>
+        </div>
+        <div class="border-2 border-dashed border-primary/40 rounded-xl p-4 flex flex-col items-center justify-center gap-2 bg-primary/[0.02] text-center">
+          <i data-lucide="loader-circle" class="w-5 h-5 text-primary animate-spin"></i>
+          <p class="text-xs font-semibold text-primary">Mengunggah... 64%</p>
+          <div class="w-full bg-border h-1.5 rounded-full overflow-hidden"><div class="w-2/3 h-full bg-primary"></div></div>
+          <p class="text-[10px] text-muted-foreground">⚠ In-progress state — not in source mockups, proposed here.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIDEBAR NAV -->
+    <section id="nav" class="section-anchor">
+      <h2 class="text-headline-lg mb-1">Sidebar Nav Item States</h2>
+      <div class="bg-white border border-border rounded-xl p-4 max-w-xs space-y-1">
+        <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-muted-foreground hover:bg-surface-container-high transition-colors"><i data-lucide="layout-dashboard" class="w-4 h-4"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a class="flex items-center gap-3 px-4 py-2.5 bg-secondary-container text-primary font-semibold border-r-4 border-primary rounded-l-lg"><i data-lucide="user-check" class="w-4 h-4"></i><span class="text-sm">Pendaftaran (active)</span></a>
+        <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-danger hover:bg-danger/10 transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i><span class="text-sm font-medium">Keluar</span></a>
+      </div>
+    </section>
+
+    <!-- TABLE / PAYMENT -->
+    <section id="data" class="section-anchor">
+      <h2 class="text-headline-lg mb-1">Table &amp; Payment Materials</h2>
+      <div class="space-y-6">
+        <div class="bg-white border border-border rounded-xl overflow-hidden">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-surface-container-low text-muted-foreground uppercase text-xs">
+              <tr><th class="px-5 py-3">Dokumen</th><th class="px-5 py-3">Status</th><th class="px-5 py-3">Catatan</th><th class="px-5 py-3">Aksi</th></tr>
+            </thead>
+            <tbody class="divide-y divide-border">
+              <tr class="hover:bg-surface-container-low/50">
+                <td class="px-5 py-3 flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4 text-danger"></i>Ijazah_SMP.pdf</td>
+                <td class="px-5 py-3"><span class="px-2 py-0.5 bg-success/10 text-success text-[11px] font-bold rounded-full">Valid</span></td>
+                <td class="px-5 py-3 text-muted-foreground italic">-</td>
+                <td class="px-5 py-3 flex gap-2"><i data-lucide="eye" class="w-4 h-4 text-muted-foreground cursor-pointer"></i><i data-lucide="download" class="w-4 h-4 text-muted-foreground cursor-pointer"></i></td>
+              </tr>
+              <tr class="hover:bg-surface-container-low/50">
+                <td class="px-5 py-3 flex items-center gap-2"><i data-lucide="image" class="w-4 h-4 text-info"></i>KK_Keluarga.jpg</td>
+                <td class="px-5 py-3"><span class="px-2 py-0.5 bg-warning/10 text-warning text-[11px] font-bold rounded-full">Revisi</span></td>
+                <td class="px-5 py-3 text-danger font-medium">Foto kurang jelas</td>
+                <td class="px-5 py-3 flex gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4 text-primary cursor-pointer"></i><i data-lucide="eye" class="w-4 h-4 text-muted-foreground cursor-pointer"></i></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="space-y-3">
+            <p class="text-label-md uppercase text-muted-foreground">Payment method selector</p>
+            <div class="bg-white rounded-xl border-2 border-primary p-3 flex items-center gap-3">
+              <div class="w-11 h-11 bg-surface-container rounded flex items-center justify-center text-xs font-bold">VA</div>
+              <div class="flex-1"><p class="text-sm font-bold">Bank Mandiri</p><p class="text-xs text-muted-foreground">Verifikasi Otomatis</p></div>
+              <i data-lucide="check-circle-2" class="w-5 h-5 text-primary"></i>
+            </div>
+            <div class="bg-white rounded-xl border border-border p-3 flex items-center gap-3 hover:bg-surface-container-low cursor-pointer">
+              <div class="w-11 h-11 bg-surface-container rounded flex items-center justify-center text-xs font-bold">BNI</div>
+              <div class="flex-1"><p class="text-sm font-semibold">Bank BNI</p><p class="text-xs text-muted-foreground">Tersedia</p></div>
+            </div>
+          </div>
+          <div class="space-y-3">
+            <p class="text-label-md uppercase text-muted-foreground">ID / VA display + copy</p>
+            <div class="bg-surface-container-low border border-border rounded-lg p-4 flex items-center justify-between">
+              <div><span class="text-xs uppercase text-muted-foreground">Virtual Account</span><p class="font-mono text-lg font-bold text-primary tracking-wider">8801 0123 4567 8901</p></div>
+              <button class="flex items-center gap-1.5 px-3 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary-hover"><i data-lucide="copy" class="w-4 h-4"></i>Salin</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEEDBACK -->
+    <section id="feedback" class="section-anchor">
+      <h2 class="text-headline-lg mb-1">Feedback &amp; Overlays</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white border border-border rounded-xl divide-y divide-border">
+          <details open class="group p-4">
+            <summary class="flex justify-between items-center cursor-pointer list-none font-semibold text-sm">Apa format dokumen yang diterima?<i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180"></i></summary>
+            <p class="text-sm text-muted-foreground mt-2">PDF, JPG, dan PNG maksimal 5MB per file.</p>
+          </details>
+          <details class="group p-4">
+            <summary class="flex justify-between items-center cursor-pointer list-none font-semibold text-sm">Bagaimana cara reset password?<i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180"></i></summary>
+          </details>
+        </div>
+        <div class="bg-white border border-border rounded-xl p-6 text-center">
+          <div class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="check-circle-2" class="w-8 h-8 text-success"></i></div>
+          <h4 class="font-bold mb-1">Pendaftaran Berhasil Terkirim!</h4>
+          <p class="text-sm text-muted-foreground mb-4">Data Anda telah kami terima.</p>
+          <div class="bg-surface-container-low rounded-lg p-3 flex items-center justify-between mb-4">
+            <span class="font-mono text-sm font-bold text-primary">REG-2024-08912</span>
+            <i data-lucide="copy" class="w-4 h-4 text-muted-foreground cursor-pointer"></i>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="py-2 bg-primary text-white rounded-lg text-xs font-semibold">Unduh Bukti</button>
+            <button class="py-2 border border-primary text-primary rounded-lg text-xs font-semibold">Ke Dashboard</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="pt-8 border-t border-border text-xs text-muted-foreground">
+      Companion to <code class="bg-surface-container-low px-1 rounded">docs/UI_MATERIALS.md</code>. Open this file directly in a browser — no build step required. Regenerate by re-running the mockup analysis if <code>../desain/</code> changes.
+    </footer>
+  </main>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

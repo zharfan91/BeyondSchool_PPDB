@@ -1,0 +1,422 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  phone         String?
+  role          String   @default("APPLICANT")
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  profile       Profile?
+  applicants    Applicant[]
+  notifications Notification[]
+  notes         Note[]
+
+  @@map("users")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("accounts")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verifications")
+}
+
+model Profile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  phone     String?
+  address   String?
+  city      String?
+  province  String?
+  postalCode String?
+  birthDate DateTime?
+  birthPlace String?
+  gender    String?
+  religion  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Applicant {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  registrationNumber String?  @unique
+  firstName          String
+  lastName           String?
+  nickName           String?
+  birthPlace         String
+  birthDate          DateTime
+  gender             String
+  religion           String
+  nationality        String   @default("WNI")
+  childNumber        Int?
+  siblingsCount      Int?
+  photo              String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user              User               @relation(fields: [userId], references: [id])
+  registration      Registration?
+  parents           Parent[]
+  addresses         Address[]
+  academicHistories AcademicHistory[]
+
+  @@map("applicants")
+}
+
+model Parent {
+  id          String   @id @default(cuid())
+  applicantId String
+  type        String
+  name        String
+  birthPlace  String?
+  birthDate   DateTime?
+  education   String?
+  occupation  String?
+  employer    String?
+  income      Decimal?
+  phone       String
+  email       String?
+  isAlive     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  applicant Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  @@map("parents")
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  applicantId String
+  type        String
+  street      String
+  village     String?
+  subDistrict String?
+  district    String
+  city        String
+  province    String
+  postalCode  String
+  rt          String?
+  rw          String?
+  isDomisili  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  applicant Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  @@map("addresses")
+}
+
+model AcademicHistory {
+  id              String   @id @default(cuid())
+  applicantId     String
+  level           String
+  institutionName String
+  city            String
+  province        String
+  graduationYear  Int
+  nisn            String?
+  npsn            String?
+  major           String?
+  finalGrade      Decimal?
+  isPreviousSchool Boolean @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  applicant Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  @@map("academic_histories")
+}
+
+model Registration {
+  id               String         @id @default(cuid())
+  applicantId      String         @unique
+  academicPeriodId String
+  programId        String
+  status           String         @default("DRAFT")
+  stepCompleted    Int            @default(0)
+  appliedAt        DateTime?
+  verifiedAt       DateTime?
+  verifiedBy       String?
+  submittedAt      DateTime?
+  reviewNotes      String?
+  decisionAt       DateTime?
+  decisionBy       String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  applicant        Applicant         @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  academicPeriod   AcademicPeriod    @relation(fields: [academicPeriodId], references: [id])
+  program          Program           @relation(fields: [programId], references: [id])
+  steps            RegistrationStep[]
+  documents        Document[]
+  payments         Payment[]
+  selectionResults SelectionResult[]
+  notes            Note[]
+
+  @@map("registrations")
+}
+
+model RegistrationStep {
+  id             String   @id @default(cuid())
+  registrationId String
+  stepNumber     Int
+  stepName       String
+  status         String   @default("PENDING")
+  completedAt    DateTime?
+  data           Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@map("registration_steps")
+}
+
+model AcademicPeriod {
+  id          String   @id @default(cuid())
+  name        String
+  year        Int
+  semester    String
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean  @default(false)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  registrations Registration[]
+  programs      Program[]
+  programQuotas ProgramQuota[]
+
+  @@map("academic_periods")
+}
+
+model Program {
+  id               String   @id @default(cuid())
+  academicPeriodId String
+  code             String
+  name             String
+  description      String?
+  capacity         Int
+  minAge           Int?
+  maxAge           Int?
+  minGrade         Decimal?
+  requirements     Json?
+  isActive         Boolean  @default(true)
+  fee              Decimal?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  academicPeriod AcademicPeriod @relation(fields: [academicPeriodId], references: [id])
+  registrations  Registration[]
+  programQuotas  ProgramQuota[]
+
+  @@map("programs")
+}
+
+model ProgramQuota {
+  id               String   @id @default(cuid())
+  academicPeriodId String
+  programId        String
+  totalQuota       Int
+  filledQuota      Int      @default(0)
+  quotaType        String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  academicPeriod AcademicPeriod @relation(fields: [academicPeriodId], references: [id])
+  program        Program        @relation(fields: [programId], references: [id])
+
+  @@map("program_quotas")
+}
+
+model Document {
+  id             String   @id @default(cuid())
+  registrationId String
+  type           String
+  fileName       String
+  originalName   String
+  fileSize       Int
+  mimeType       String
+  filePath       String
+  isVerified     Boolean  @default(false)
+  verifiedAt     DateTime?
+  verifiedBy     String?
+  rejectionNote  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
+
+model Payment {
+  id             String   @id @default(cuid())
+  registrationId String
+  paymentTypeId  String
+  invoiceNumber  String   @unique
+  amount         Decimal
+  paidAmount     Decimal  @default(0)
+  status         String   @default("PENDING")
+  method         String?
+  vaNumber       String?
+  bankName       String?
+  billKey        String?
+  billCode       String?
+  paidAt         DateTime?
+  expiredAt      DateTime?
+  proofFile      String?
+  notes          String?
+  approvedBy     String?
+  approvedAt     DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  registration Registration @relation(fields: [registrationId], references: [id])
+  paymentType  PaymentType  @relation(fields: [paymentTypeId], references: [id])
+
+  @@map("payments")
+}
+
+model PaymentType {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  description String?
+  amount      Decimal
+  isMandatory Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  payments Payment[]
+
+  @@map("payment_types")
+}
+
+model SelectionResult {
+  id             String   @id @default(cuid())
+  registrationId String   @unique
+  status         String   @default("PENDING")
+  score          Decimal?
+  rank           Int?
+  notes          String?
+  decidedBy      String?
+  decidedAt      DateTime?
+  appealNote     String?
+  appealFile     String?
+  appealStatus   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  registration    Registration              @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  criteriaScores  SelectionCriteriaScore[]
+
+  @@map("selection_results")
+}
+
+model SelectionCriteriaScore {
+  id               String  @id @default(cuid())
+  selectionResultId String
+  criteriaName     String
+  score            Decimal
+  maxScore         Decimal
+  weight           Decimal @default(1.0)
+  notes            String?
+
+  selectionResult SelectionResult @relation(fields: [selectionResultId], references: [id], onDelete: Cascade)
+
+  @@map("selection_criteria_scores")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String
+  link      String?
+  isRead    Boolean  @default(false)
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Note {
+  id             String   @id @default(cuid())
+  userId         String
+  registrationId String
+  content        String
+  isInternal     Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id])
+  registration Registration @relation(fields: [registrationId], references: [id])
+
+  @@map("notes")
+}

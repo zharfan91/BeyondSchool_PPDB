@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@layer base {
+  :root {
+    /* PPDB Design System — beyondDIGI DESIGN.md */
+    --background: 210 40% 98%;      /* #F8FAFC */
+    --foreground: 222 47% 11%;      /* #0F172A */
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 222 100% 39%;        /* #004ac6 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214 18% 39%;       /* #515f74 */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 240 15% 95%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 240 15% 95%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 72% 51%;       /* #DC2626 */
+    --destructive-foreground: 0 0% 100%;
+    --border: 213 27% 89%;          /* #E2E8F0 */
+    --input: 213 27% 89%;
+    --ring: 222 100% 39%;           /* #004ac6 */
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+}
