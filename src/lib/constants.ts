@@ -3,7 +3,6 @@ export const SITE_DESCRIPTION = "Penerimaan Peserta Didik Baru - Beyond School";
 
 export const ROLES = {
   APPLICANT: "APPLICANT",
-  PARENT: "PARENT",
   STAFF: "STAFF",
   ADMIN: "ADMIN",
   PRINCIPAL: "PRINCIPAL",

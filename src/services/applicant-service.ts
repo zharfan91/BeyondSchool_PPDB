@@ -56,13 +56,57 @@ export const applicantService = {
       where.registration = { status: filters.status };
     }
 
-    return prisma.applicant.findMany({
+    if (filters?.search) {
+      where.OR = [
+        { user: { name: { contains: filters.search } } },
+        { registrationNumber: { contains: filters.search } },
+      ];
+    }
+
+    const applicants = await prisma.applicant.findMany({
       where: where as any,
       include: {
         user: { select: { name: true, email: true } },
-        registration: { include: { program: true } },
+        registration: {
+          include: {
+            program: true,
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
+    });
+
+    return applicants.map((applicant) => ({
+      id: applicant.id,
+      registrationNumber: applicant.registrationNumber ?? "-",
+      name: applicant.user.name,
+      program: applicant.registration?.program?.name ?? "-",
+      status: applicant.registration?.status ?? "DRAFT",
+      submittedAt:
+        applicant.registration?.submittedAt ??
+        applicant.registration?.createdAt ??
+        applicant.createdAt,
+    }));
+  },
+
+  async findById(id: string) {
+    return prisma.applicant.findUnique({
+      where: { id },
+      include: {
+        user: true,
+        registration: {
+          include: {
+            academicPeriod: true,
+            program: true,
+            documents: true,
+            payments: true,
+            selectionResults: true,
+          },
+        },
+        parents: true,
+        addresses: true,
+        academicHistories: true,
+      },
     });
   },
 };

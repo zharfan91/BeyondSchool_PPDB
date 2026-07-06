@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { DocumentType } from "@prisma/client";
 
 export const documentService = {
   async findByRegistration(registrationId: string) {
@@ -10,7 +11,7 @@ export const documentService = {
 
   async create(data: {
     registrationId: string;
-    type: string;
+    type: DocumentType;
     fileName: string;
     originalName: string;
     fileSize: number;

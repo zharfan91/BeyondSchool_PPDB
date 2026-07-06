@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Lock, CheckCircle } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 export default function ResetPasswordPage() {
   return (
@@ -31,12 +32,33 @@ function ResetPasswordForm() {
   const token = searchParams.get("token");
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    const form = e.currentTarget as HTMLFormElement;
+    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
+    const confirm = (form.elements.namedItem("confirm") as HTMLInputElement).value;
+    if (password.length < 8) {
+      setError("Password minimal 8 karakter");
+      return;
+    }
+    if (password !== confirm) {
+      setError("Password dan konfirmasi password tidak cocok");
+      return;
+    }
+    if (!token) return;
     setLoading(true);
-    // TODO: Verify token and reset password via Better Auth
-    await new Promise((r) => setTimeout(r, 1000));
+    const { error: resetError } = await authClient.resetPassword({
+      newPassword: password,
+      token,
+    });
+    if (resetError) {
+      setError(resetError.message || "Tautan reset tidak valid atau telah kedaluwarsa");
+      setLoading(false);
+      return;
+    }
     setDone(true);
     setLoading(false);
   };
@@ -79,6 +101,11 @@ function ResetPasswordForm() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+                {error}
+              </div>
+            )}
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Password Baru</label>
               <Input

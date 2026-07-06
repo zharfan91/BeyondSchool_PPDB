@@ -5,9 +5,23 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { navigation } from "@/config/navigation";
 import { LayoutDashboard } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = authClient.useSession();
+  // `role` is a custom additionalField on the user record (see src/lib/auth.ts)
+  // that isn't part of authClient's inferred session type, so it's read via a
+  // narrow cast rather than modifying the shared auth client's typing.
+  const role = (session?.user as { role?: string } | undefined)?.role;
+
+  // Role-agnostic items are always visible. Role-restricted items only show
+  // once we actually know the user's role — while the session is still
+  // loading (role undefined) we hide them rather than showing everything,
+  // to avoid flashing links the user may not be allowed to see.
+  const visibleNav = navigation.filter(
+    (item) => !item.roles || (!!role && item.roles.includes(role))
+  );
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-sidebar border-r border-border bg-white">
@@ -19,7 +33,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex flex-col gap-1 p-4">
-        {navigation.map((item) => (
+        {visibleNav.map((item) => (
           <Link
             key={item.href}
             href={item.href}

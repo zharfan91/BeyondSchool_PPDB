@@ -1,6 +1,5 @@
 export type UserRole =
   | "APPLICANT"
-  | "PARENT"
   | "STAFF"
   | "ADMIN"
   | "PRINCIPAL"

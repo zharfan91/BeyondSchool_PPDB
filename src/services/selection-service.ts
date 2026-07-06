@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { SelectionStatus } from "@prisma/client";
 
 export const selectionService = {
   async getByRegistration(registrationId: string) {
@@ -11,7 +12,7 @@ export const selectionService = {
   async create(data: {
     registrationId: string;
     score: number;
-    status?: string;
+    status?: SelectionStatus;
   }) {
     return prisma.selectionResult.create({
       data: {
@@ -22,7 +23,7 @@ export const selectionService = {
     });
   },
 
-  async updateStatus(id: string, status: string, userId: string) {
+  async updateStatus(id: string, status: SelectionStatus, userId: string) {
     return prisma.selectionResult.update({
       where: { id },
       data: {

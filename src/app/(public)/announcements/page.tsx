@@ -64,7 +64,7 @@ export default function AnnouncementsPage() {
   });
 
   return (
-    <div>
+    <div className="mx-auto max-w-3xl py-12 px-4">
       <PageHeader
         title="Pengumuman"
         description="Informasi terbaru seputar PPDB"

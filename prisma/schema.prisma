@@ -14,7 +14,7 @@ model User {
   emailVerified Boolean  @default(false)
   image         String?
   phone         String?
-  role          String   @default("APPLICANT")
+  role          UserRole @default(APPLICANT)
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -85,7 +85,7 @@ model Profile {
   postalCode String?
   birthDate DateTime?
   birthPlace String?
-  gender    String?
+  gender    Gender?
   religion  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -104,7 +104,7 @@ model Applicant {
   nickName           String?
   birthPlace         String
   birthDate          DateTime
-  gender             String
+  gender             Gender
   religion           String
   nationality        String   @default("WNI")
   childNumber        Int?
@@ -125,7 +125,7 @@ model Applicant {
 model Parent {
   id          String   @id @default(cuid())
   applicantId String
-  type        String
+  type        ParentType
   name        String
   birthPlace  String?
   birthDate   DateTime?
@@ -147,7 +147,7 @@ model Parent {
 model Address {
   id          String   @id @default(cuid())
   applicantId String
-  type        String
+  type        AddressType
   street      String
   village     String?
   subDistrict String?
@@ -169,7 +169,7 @@ model Address {
 model AcademicHistory {
   id              String   @id @default(cuid())
   applicantId     String
-  level           String
+  level           EducationLevel
   institutionName String
   city            String
   province        String
@@ -192,7 +192,7 @@ model Registration {
   applicantId      String         @unique
   academicPeriodId String
   programId        String
-  status           String         @default("DRAFT")
+  status           RegistrationStatus @default(DRAFT)
   stepCompleted    Int            @default(0)
   appliedAt        DateTime?
   verifiedAt       DateTime?
@@ -221,7 +221,7 @@ model RegistrationStep {
   registrationId String
   stepNumber     Int
   stepName       String
-  status         String   @default("PENDING")
+  status         StepStatus @default(PENDING)
   completedAt    DateTime?
   data           Json?
   createdAt      DateTime @default(now())
@@ -236,7 +236,7 @@ model AcademicPeriod {
   id          String   @id @default(cuid())
   name        String
   year        Int
-  semester    String
+  semester    Semester
   startDate   DateTime
   endDate     DateTime
   isActive    Boolean  @default(false)
@@ -280,7 +280,7 @@ model ProgramQuota {
   programId        String
   totalQuota       Int
   filledQuota      Int      @default(0)
-  quotaType        String
+  quotaType        QuotaType
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -293,7 +293,7 @@ model ProgramQuota {
 model Document {
   id             String   @id @default(cuid())
   registrationId String
-  type           String
+  type           DocumentType
   fileName       String
   originalName   String
   fileSize       Int
@@ -318,7 +318,7 @@ model Payment {
   invoiceNumber  String   @unique
   amount         Decimal
   paidAmount     Decimal  @default(0)
-  status         String   @default("PENDING")
+  status         PaymentStatus @default(PENDING)
   method         String?
   vaNumber       String?
   bankName       String?
@@ -358,7 +358,7 @@ model PaymentType {
 model SelectionResult {
   id             String   @id @default(cuid())
   registrationId String   @unique
-  status         String   @default("PENDING")
+  status         SelectionStatus @default(PENDING)
   score          Decimal?
   rank           Int?
   notes          String?
@@ -366,7 +366,7 @@ model SelectionResult {
   decidedAt      DateTime?
   appealNote     String?
   appealFile     String?
-  appealStatus   String?
+  appealStatus   AppealStatus?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -395,7 +395,7 @@ model Notification {
   userId    String
   title     String
   message   String
-  type      String
+  type      NotificationType
   link      String?
   isRead    Boolean  @default(false)
   readAt    DateTime?
@@ -419,4 +419,120 @@ model Note {
   registration Registration @relation(fields: [registrationId], references: [id])
 
   @@map("notes")
+}
+
+// ============ ENUMS ============
+
+enum UserRole {
+  APPLICANT
+  STAFF
+  ADMIN
+  PRINCIPAL
+  FINANCE
+  SUPER_ADMIN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum ParentType {
+  FATHER
+  MOTHER
+  GUARDIAN
+}
+
+enum AddressType {
+  HOME
+  PARENT
+  DOMICILE
+}
+
+enum EducationLevel {
+  TK
+  SD
+  SMP
+  SMA
+  SMK
+  D1
+  D2
+  D3
+  D4
+  S1
+  S2
+  S3
+}
+
+enum Semester {
+  GANJIL
+  GENAP
+}
+
+enum QuotaType {
+  ZONASI
+  AFIRMASI
+  PRESTASI
+  PERPINDAHAN
+  LAINNYA
+}
+
+enum RegistrationStatus {
+  DRAFT
+  SUBMITTED
+  VERIFIED
+  INCOMPLETE
+  COMPLETED
+}
+
+enum StepStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+enum DocumentType {
+  BIRTH_CERTIFICATE
+  FAMILY_CARD
+  IDENTITY_CARD
+  PASSPORT_PHOTO
+  REPORT_CARD
+  DIPLOMA
+  ACHIEVEMENT
+  HEALTH_CERTIFICATE
+  PARENT_CONSENT
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  WAITING_PAYMENT
+  PAID
+  VERIFIED
+  EXPIRED
+  FAILED
+  REFUNDED
+}
+
+enum SelectionStatus {
+  PENDING
+  PASSED
+  WAITLIST
+  REJECTED
+  APPEALED
+}
+
+enum AppealStatus {
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  REMINDER
 }

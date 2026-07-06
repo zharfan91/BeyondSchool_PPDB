@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { User, Lock, ShieldCheck, GraduationCap, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,16 @@ const roles = [
 ];
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [role, setRole] = useState("student");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -41,6 +50,11 @@ export default function LoginPage() {
     if (authError) {
       setError(authError.message || "Email/NISN atau password salah");
       setLoading(false);
+      return;
+    }
+    const callbackUrl = searchParams.get("callbackUrl");
+    if (callbackUrl && callbackUrl.startsWith("/")) {
+      router.push(callbackUrl);
       return;
     }
     router.push(role === "admin" ? "/admin/dashboard" : "/dashboard");

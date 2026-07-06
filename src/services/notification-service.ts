@@ -1,11 +1,12 @@
 import { prisma } from "@/lib/prisma";
+import type { NotificationType } from "@prisma/client";
 
 export const notificationService = {
   async create(data: {
     userId: string;
     title: string;
     message: string;
-    type?: string;
+    type?: NotificationType;
     link?: string;
   }) {
     return prisma.notification.create({

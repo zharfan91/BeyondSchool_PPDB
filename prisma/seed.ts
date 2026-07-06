@@ -147,7 +147,7 @@ async function main() {
     data: {
       name: "Tahun Ajaran 2025/2026",
       year: 2026,
-      semester: "Ganjil",
+      semester: "GANJIL",
       startDate: new Date("2025-06-01"),
       endDate: new Date("2026-07-31"),
       isActive: true,
@@ -179,18 +179,20 @@ async function main() {
   );
 
   // ─── PROGRAM QUOTAS ───
+  const quotaDefs = [
+    { programIdx: 0, totalQuota: 60, quotaType: "ZONASI" },
+    { programIdx: 0, totalQuota: 30, quotaType: "AFIRMASI" },
+    { programIdx: 0, totalQuota: 30, quotaType: "PRESTASI" },
+    { programIdx: 1, totalQuota: 45, quotaType: "ZONASI" },
+    { programIdx: 1, totalQuota: 22, quotaType: "AFIRMASI" },
+    { programIdx: 1, totalQuota: 23, quotaType: "PRESTASI" },
+    { programIdx: 2, totalQuota: 30, quotaType: "ZONASI" },
+    { programIdx: 2, totalQuota: 15, quotaType: "AFIRMASI" },
+    { programIdx: 2, totalQuota: 15, quotaType: "PRESTASI" },
+  ] as const;
+
   const programQuotas = await Promise.all(
-    [
-      { programIdx: 0, totalQuota: 60, quotaType: "ZONASI" },
-      { programIdx: 0, totalQuota: 30, quotaType: "AFIRMASI" },
-      { programIdx: 0, totalQuota: 30, quotaType: "PRESTASI" },
-      { programIdx: 1, totalQuota: 45, quotaType: "ZONASI" },
-      { programIdx: 1, totalQuota: 22, quotaType: "AFIRMASI" },
-      { programIdx: 1, totalQuota: 23, quotaType: "PRESTASI" },
-      { programIdx: 2, totalQuota: 30, quotaType: "ZONASI" },
-      { programIdx: 2, totalQuota: 15, quotaType: "AFIRMASI" },
-      { programIdx: 2, totalQuota: 15, quotaType: "PRESTASI" },
-    ].map((q) =>
+    quotaDefs.map((q) =>
       prisma.programQuota.create({
         data: {
           academicPeriodId: period.id,
@@ -214,7 +216,7 @@ async function main() {
     { firstName: "Rina", lastName: "Amelia", gender: "FEMALE", religion: "ISLAM", birthPlace: "Jakarta", birthDate: new Date("2008-06-20"), childNumber: 3, siblingsCount: 4 },
     { firstName: "Hendra", lastName: "Gunawan", gender: "MALE", religion: "KATOLIK", birthPlace: "Bandung", birthDate: new Date("2008-04-08"), childNumber: 2, siblingsCount: 1 },
     { firstName: "Fitri", lastName: "Handayani", gender: "FEMALE", religion: "ISLAM", birthPlace: "Jakarta", birthDate: new Date("2008-12-25"), childNumber: 1, siblingsCount: 2 },
-  ];
+  ] as const;
 
   const applicants = await Promise.all(
     applicantData.map((a, i) => {
@@ -233,7 +235,7 @@ async function main() {
   const parentData = [
     { type: "FATHER", name: "Bapak Ahmad", phone: "081111111121", occupation: "PNS", education: "S1" },
     { type: "MOTHER", name: "Ibu Ahmad", phone: "081111111122", occupation: "Ibu Rumah Tangga", education: "SMA" },
-  ];
+  ] as const;
 
   await Promise.all(
     applicants.flatMap((app) =>
@@ -293,7 +295,7 @@ async function main() {
   );
 
   // ─── REGISTRATIONS ───
-  const statuses = ["DRAFT", "SUBMITTED", "SUBMITTED", "COMPLETED", "VERIFIED", "SUBMITTED", "SUBMITTED", "DRAFT", "COMPLETED", "VERIFIED"];
+  const statuses = ["DRAFT", "SUBMITTED", "SUBMITTED", "COMPLETED", "VERIFIED", "SUBMITTED", "SUBMITTED", "DRAFT", "COMPLETED", "VERIFIED"] as const;
 
   const registrations = await Promise.all(
     applicants.map((app, i) => {

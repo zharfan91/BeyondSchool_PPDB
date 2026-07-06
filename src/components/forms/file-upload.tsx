@@ -7,7 +7,10 @@ interface FileUploadProps {
   label: string;
   accept?: string;
   maxSizeMB?: number;
+  documentType: string;
+  registrationId?: string | null;
   onUpload?: (file: File) => void;
+  onUploaded?: (result: { id: string; fileName: string; filePath: string }) => void;
 }
 
 interface UploadedFile {
@@ -16,24 +19,41 @@ interface UploadedFile {
   uploading: boolean;
 }
 
-export function FileUpload({ label, accept, maxSizeMB = 5, onUpload }: FileUploadProps) {
+export function FileUpload({ label, accept, maxSizeMB = 5, documentType, registrationId, onUpload, onUploaded }: FileUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<UploadedFile | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFile = (f: File) => {
     if (maxSizeMB && f.size > maxSizeMB * 1024 * 1024) return;
+    if (!registrationId) {
+      setError("Lengkapi data sebelumnya terlebih dahulu");
+      return;
+    }
+    setError(null);
     const preview = f.type.startsWith("image/") ? URL.createObjectURL(f) : undefined;
     setFile({ file: f, preview, uploading: true });
     onUpload?.(f);
-    // Auto-upload to server
     const formData = new FormData();
     formData.append("file", f);
-    formData.append("type", label.toLowerCase().replace(/\s+/g, "-"));
+    formData.append("type", documentType);
+    formData.append("registrationId", registrationId);
     fetch("/api/upload", { method: "POST", body: formData })
-      .then((res) => res.json())
-      .then(() => setFile((prev) => prev ? { ...prev, uploading: false } : null))
-      .catch(() => setFile((prev) => prev ? { ...prev, uploading: false } : null));
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data?.error ?? "Gagal mengunggah file");
+          setFile(null);
+          return;
+        }
+        onUploaded?.(data);
+        setFile((prev) => (prev ? { ...prev, uploading: false } : null));
+      })
+      .catch(() => {
+        setError("Gagal mengunggah file");
+        setFile(null);
+      });
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -110,6 +130,7 @@ export function FileUpload({ label, accept, maxSizeMB = 5, onUpload }: FileUploa
           </p>
         </div>
       )}
+      {error && <p className="text-xs text-red-600">{error}</p>}
       <input
         ref={inputRef}
         type="file"

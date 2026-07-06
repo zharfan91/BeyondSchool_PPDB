@@ -24,12 +24,22 @@ export default function RegisterPage() {
     const phone = (form.elements.namedItem("phone") as HTMLInputElement).value;
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
     const confirm = (form.elements.namedItem("confirm") as HTMLInputElement).value;
+    if (password.length < 8) {
+      setError("Password minimal 8 karakter");
+      setLoading(false);
+      return;
+    }
     if (password !== confirm) {
       setError("Password dan konfirmasi password tidak cocok");
       setLoading(false);
       return;
     }
-    const { error: authError } = await authClient.signUp.email({ email, password, name });
+    const { error: authError } = await authClient.signUp.email({
+      email,
+      password,
+      name,
+      phone,
+    } as Parameters<typeof authClient.signUp.email>[0]);
     if (authError) {
       setError(authError.message || "Gagal mendaftar");
       setLoading(false);

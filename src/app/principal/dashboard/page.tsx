@@ -1,10 +1,46 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatCard } from "@/components/data/stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { KpiCard } from "@/components/data/kpi-card";
+import { LoadingState } from "@/components/shared/loading-state";
 import { Users, TrendingUp, Award, DollarSign } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
+
+interface PrincipalStats {
+  totalApplicants: number;
+  passed: number;
+  realizationPct: number;
+  totalRevenue: number;
+  programSummary: { program: string; filled: number; total: number }[];
+  awaitingDecision: number;
+}
 
 export default function PrincipalDashboard() {
+  const [stats, setStats] = useState<PrincipalStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/principal/stats")
+      .then((res) => res.json())
+      .then((data) => setStats(data))
+      .catch((err) => console.error("Failed to load principal stats:", err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading || !stats) {
+    return <LoadingState rows={4} />;
+  }
+
+  const actions = [
+    ...(stats.awaitingDecision > 0
+      ? [{ title: "Persetujuan Seleksi", desc: `${stats.awaitingDecision} pendaftar menunggu keputusan akhir`, urgent: true }]
+      : []),
+    { title: "Laporan Akhir", desc: "Generate laporan PPDB untuk diserahkan ke yayasan", urgent: false },
+  ];
+
   return (
     <div>
       <PageHeader
@@ -13,10 +49,10 @@ export default function PrincipalDashboard() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <StatCard title="Total Pendaftar" value="1,234" trend={{ value: 12, isPositive: true }} icon={Users} />
-        <StatCard title="Diterima" value="890" trend={{ value: 72, isPositive: true }} icon={Award} />
-        <StatCard title="Realisasi" value="85%" icon={TrendingUp} />
-        <StatCard title="Pendapatan" value="Rp 185 Jt" icon={DollarSign} />
+        <StatCard title="Total Pendaftar" value={stats.totalApplicants} icon={Users} />
+        <StatCard title="Diterima" value={stats.passed} icon={Award} />
+        <StatCard title="Realisasi" value={`${stats.realizationPct}%`} icon={TrendingUp} />
+        <StatCard title="Pendapatan" value={formatCurrency(stats.totalRevenue)} icon={DollarSign} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -25,11 +61,15 @@ export default function PrincipalDashboard() {
             <CardTitle className="text-headline-md">Ringkasan Program</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <KpiCard label="IPA" value="420" subValue="dari 500 kuota" />
-              <KpiCard label="IPS" value="310" subValue="dari 400 kuota" />
-              <KpiCard label="BAHASA" value="145" subValue="dari 200 kuota" />
-            </div>
+            {stats.programSummary.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">Belum ada data kuota.</p>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-3">
+                {stats.programSummary.map((p) => (
+                  <KpiCard key={p.program} label={p.program} value={p.filled} subValue={`dari ${p.total} kuota`} />
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -39,10 +79,7 @@ export default function PrincipalDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { title: "Persetujuan Seleksi", desc: "Menunggu approval hasil seleksi akhir", urgent: true },
-                { title: "Laporan Akhir", desc: "Generate laporan PPDB untuk diserahkan ke yayasan", urgent: false },
-              ].map((item, i) => (
+              {actions.map((item, i) => (
                 <div
                   key={i}
                   className={`rounded-md border p-4 ${item.urgent ? "border-danger/30 bg-danger-bg" : "border-border"}`}
