@@ -12,6 +12,7 @@ const roleProtectedRoutes: { prefix: string; roles: string[] }[] = [
   { prefix: "/principal", roles: ["PRINCIPAL", "ADMIN", "SUPER_ADMIN"] },
   { prefix: "/selection", roles: ["STAFF", "ADMIN", "SUPER_ADMIN"] },
   { prefix: "/reports", roles: ["ADMIN", "PRINCIPAL", "SUPER_ADMIN"] },
+  { prefix: "/super-admin", roles: ["SUPER_ADMIN"] },
 ];
 
 export async function middleware(request: NextRequest) {

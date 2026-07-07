@@ -11,6 +11,7 @@ import {
   DollarSign,
   Award,
   ShieldCheck,
+  History,
 } from "lucide-react";
 
 export interface NavItem {
@@ -98,5 +99,11 @@ export const navigation: NavItem[] = [
     href: "/admin/settings",
     icon: Settings,
     roles: ["ADMIN", "SUPER_ADMIN"],
+  },
+  {
+    title: "Audit Log",
+    href: "/super-admin/audit-log",
+    icon: History,
+    roles: ["SUPER_ADMIN"],
   },
 ];

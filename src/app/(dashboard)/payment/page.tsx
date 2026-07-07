@@ -14,7 +14,11 @@ import { downloadTablePdf } from "@/lib/pdf";
 import { Download, Wallet, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-const SCHOOL_BANK_ACCOUNT = "Bank Mandiri a.n. Yayasan Beyond School — 123-00-4567890-1";
+interface SchoolSettings {
+  bankName: string;
+  bankAccountNumber: string;
+  bankAccountHolder: string;
+}
 
 interface PaymentType {
   id: string;
@@ -39,16 +43,21 @@ export default function PaymentPage() {
   const [registrationId, setRegistrationId] = useState<string | null>(null);
   const [paymentTypes, setPaymentTypes] = useState<PaymentType[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [settings, setSettings] = useState<SchoolSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch("/api/payments");
-      const data = await res.json();
+      const [paymentsRes, settingsRes] = await Promise.all([
+        fetch("/api/payments"),
+        fetch("/api/settings"),
+      ]);
+      const data = await paymentsRes.json();
       setRegistrationId(data.registrationId ?? null);
       setPaymentTypes(data.paymentTypes ?? []);
       setPayments(data.payments ?? []);
+      setSettings(await settingsRes.json());
     } catch (error) {
       console.error("Failed to load payments:", error);
     } finally {
@@ -116,10 +125,14 @@ export default function PaymentPage() {
     );
   }
 
+  const bankAccountLabel = settings
+    ? `${settings.bankName} a.n. ${settings.bankAccountHolder} — ${settings.bankAccountNumber}`
+    : "Belum ada rekening pembayaran yang dikonfigurasi";
+
   const handleDownloadInvoice = () => {
     downloadTablePdf({
       title: "Invoice Pembayaran PPDB",
-      subtitle: SCHOOL_BANK_ACCOUNT,
+      subtitle: bankAccountLabel,
       head: ["Jenis Pembayaran", "No. Invoice", "Jumlah", "Status"],
       rows: paymentTypes.map((pt) => {
         const payment = payments.find((p) => p.paymentTypeId === pt.id);
@@ -162,7 +175,7 @@ export default function PaymentPage() {
             <p className="text-sm text-muted-foreground mb-3">
               Lakukan transfer ke rekening berikut, lalu sertakan kode referensi pada setiap tagihan di bawah.
             </p>
-            <p className="text-sm font-semibold text-foreground">{SCHOOL_BANK_ACCOUNT}</p>
+            <p className="text-sm font-semibold text-foreground">{bankAccountLabel}</p>
           </CardContent>
         </Card>
 

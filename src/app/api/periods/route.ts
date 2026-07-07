@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ROLES } from "@/lib/constants";
+import { logAction } from "@/lib/audit";
 import type { Semester } from "@prisma/client";
 
 async function requireAdmin(request: NextRequest) {
@@ -60,6 +61,15 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    await logAction({
+      actorId: auth1.session!.user.id,
+      actorName: auth1.session!.user.name,
+      action: "PERIOD_CREATED",
+      targetType: "AcademicPeriod",
+      targetId: created.id,
+      metadata: { name: created.name, year: created.year },
+    });
+
     return NextResponse.json(created);
   } catch (error) {
     console.error("Failed to create period:", error);
@@ -89,6 +99,16 @@ export async function PATCH(request: NextRequest) {
     }
 
     const updated = await prisma.academicPeriod.findUnique({ where: { id } });
+
+    await logAction({
+      actorId: auth1.session!.user.id,
+      actorName: auth1.session!.user.name,
+      action: isActive ? "PERIOD_ACTIVATED" : "PERIOD_DEACTIVATED",
+      targetType: "AcademicPeriod",
+      targetId: id,
+      metadata: { name: updated?.name },
+    });
+
     return NextResponse.json(updated);
   } catch (error) {
     console.error("Failed to update period:", error);

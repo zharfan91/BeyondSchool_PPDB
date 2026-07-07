@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { authClient } from "@/lib/auth-client";
+import { ROLES } from "@/lib/constants";
 
 interface Period {
   id: string;
@@ -13,29 +15,48 @@ interface Period {
   isActive: boolean;
 }
 
+interface SchoolSettings {
+  id: string;
+  schoolName: string;
+  schoolAddress: string;
+  bankName: string;
+  bankAccountNumber: string;
+  bankAccountHolder: string;
+  emailVerificationTemplate: string;
+}
+
 export default function SettingsPage() {
+  const { data: session } = authClient.useSession();
+  const isSuperAdmin = (session?.user as { role?: string } | undefined)?.role === ROLES.SUPER_ADMIN;
+
   const [periods, setPeriods] = useState<Period[]>([]);
   const [activeId, setActiveId] = useState<string>("");
+  const [settings, setSettings] = useState<SchoolSettings | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [savingPeriod, setSavingPeriod] = useState(false);
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [savedPeriod, setSavedPeriod] = useState(false);
+  const [savedSettings, setSavedSettings] = useState(false);
 
   useEffect(() => {
-    fetch("/api/periods")
-      .then((res) => res.json())
-      .then((data: Period[]) => {
-        setPeriods(data);
-        const active = data.find((p) => p.isActive);
+    Promise.all([
+      fetch("/api/periods").then((r) => r.json()),
+      fetch("/api/settings").then((r) => r.json()),
+    ])
+      .then(([periodsData, settingsData]: [Period[], SchoolSettings]) => {
+        setPeriods(periodsData);
+        const active = periodsData.find((p) => p.isActive);
         if (active) setActiveId(active.id);
+        setSettings(settingsData);
       })
-      .catch((err) => console.error("Failed to load periods:", err))
+      .catch((err) => console.error("Failed to load settings:", err))
       .finally(() => setLoading(false));
   }, []);
 
   const handleSaveActivePeriod = async () => {
     if (!activeId) return;
-    setSaving(true);
-    setSaved(false);
+    setSavingPeriod(true);
+    setSavedPeriod(false);
     try {
       const res = await fetch("/api/periods", {
         method: "PATCH",
@@ -47,10 +68,36 @@ export default function SettingsPage() {
         alert(body?.error ?? "Gagal menyimpan periode aktif");
         return;
       }
-      setSaved(true);
+      setSavedPeriod(true);
     } finally {
-      setSaving(false);
+      setSavingPeriod(false);
     }
+  };
+
+  const handleSaveSettings = async () => {
+    if (!settings) return;
+    setSavingSettings(true);
+    setSavedSettings(false);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(body?.error ?? "Gagal menyimpan pengaturan");
+        return;
+      }
+      setSettings(body);
+      setSavedSettings(true);
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
+  const update = (key: keyof SchoolSettings, value: string) => {
+    setSettings((prev) => (prev ? { ...prev, [key]: value } : prev));
   };
 
   return (
@@ -66,15 +113,48 @@ export default function SettingsPage() {
             <CardTitle className="text-headline-md">Pengaturan Umum</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Nama Sekolah</label>
-              <Input defaultValue="Beyond School" disabled title="Belum ada model pengaturan sekolah di database" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Alamat Sekolah</label>
-              <Input defaultValue="Jl. Pendidikan No. 1, Jakarta" disabled title="Belum ada model pengaturan sekolah di database" />
-            </div>
-            <div className="space-y-2">
+            {loading || !settings ? (
+              <p className="text-sm text-muted-foreground">Memuat...</p>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Nama Sekolah</label>
+                  <Input value={settings.schoolName} disabled={!isSuperAdmin} onChange={(e) => update("schoolName", e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Alamat Sekolah</label>
+                  <Input value={settings.schoolAddress} disabled={!isSuperAdmin} onChange={(e) => update("schoolAddress", e.target.value)} />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Nama Bank</label>
+                    <Input value={settings.bankName} disabled={!isSuperAdmin} onChange={(e) => update("bankName", e.target.value)} placeholder="Bank Mandiri" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">No. Rekening</label>
+                    <Input value={settings.bankAccountNumber} disabled={!isSuperAdmin} onChange={(e) => update("bankAccountNumber", e.target.value)} placeholder="123-00-4567890-1" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Atas Nama</label>
+                    <Input value={settings.bankAccountHolder} disabled={!isSuperAdmin} onChange={(e) => update("bankAccountHolder", e.target.value)} placeholder="Yayasan Beyond School" />
+                  </div>
+                </div>
+                {isSuperAdmin ? (
+                  <div className="pt-2 flex items-center gap-3">
+                    <Button onClick={handleSaveSettings} disabled={savingSettings}>
+                      {savingSettings ? "Menyimpan..." : "Simpan Pengaturan"}
+                    </Button>
+                    {savedSettings && <span className="text-sm text-success">Tersimpan</span>}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Hanya Super Admin yang dapat mengubah pengaturan ini.
+                  </p>
+                )}
+              </>
+            )}
+
+            <div className="space-y-2 pt-4 border-t border-border">
               <label className="text-sm font-medium">Tahun Ajaran Aktif</label>
               {loading ? (
                 <p className="text-sm text-muted-foreground">Memuat...</p>
@@ -91,15 +171,12 @@ export default function SettingsPage() {
                 </Select>
               )}
             </div>
-            <div className="pt-4 flex items-center gap-3">
-              <Button onClick={handleSaveActivePeriod} disabled={saving || !activeId}>
-                {saving ? "Menyimpan..." : "Simpan Periode Aktif"}
+            <div className="pt-2 flex items-center gap-3">
+              <Button onClick={handleSaveActivePeriod} disabled={savingPeriod || !activeId}>
+                {savingPeriod ? "Menyimpan..." : "Simpan Periode Aktif"}
               </Button>
-              {saved && <span className="text-sm text-success">Tersimpan</span>}
+              {savedPeriod && <span className="text-sm text-success">Tersimpan</span>}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Nama dan alamat sekolah belum dapat diubah karena belum ada model pengaturan di database.
-            </p>
           </CardContent>
         </Card>
 
@@ -113,14 +190,27 @@ export default function SettingsPage() {
                 Template Email Verifikasi
               </label>
               <textarea
-                className="flex min-h-[120px] w-full rounded-md border border-border bg-white px-3 py-2 text-sm"
-                defaultValue="Selamat {name}, pendaftaran Anda telah diverifikasi."
-                disabled
-                title="Belum ada layanan pengiriman email terpasang"
+                className="flex min-h-[120px] w-full rounded-md border border-border bg-white px-3 py-2 text-sm disabled:opacity-60"
+                value={settings?.emailVerificationTemplate ?? ""}
+                disabled={!isSuperAdmin || loading}
+                onChange={(e) => update("emailVerificationTemplate", e.target.value)}
+                placeholder="Selamat {name}, pendaftaran Anda telah diverifikasi."
               />
             </div>
+            {isSuperAdmin ? (
+              <div className="flex items-center gap-3">
+                <Button variant="outline" onClick={handleSaveSettings} disabled={savingSettings}>
+                  {savingSettings ? "Menyimpan..." : "Simpan Template"}
+                </Button>
+                {savedSettings && <span className="text-sm text-success">Tersimpan</span>}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Hanya Super Admin yang dapat mengubah template ini.
+              </p>
+            )}
             <p className="text-xs text-muted-foreground">
-              Template email belum dapat disimpan karena belum ada layanan pengiriman email yang terpasang.
+              Template ini tersimpan di database tapi belum dikirim otomatis oleh sistem manapun — belum ada alur yang memicu email verifikasi.
             </p>
           </CardContent>
         </Card>

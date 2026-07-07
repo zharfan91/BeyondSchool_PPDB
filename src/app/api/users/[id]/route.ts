@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ROLES } from "@/lib/constants";
+import { logAction } from "@/lib/audit";
 import type { UserRole } from "@prisma/client";
 
 const VALID_ROLES = Object.values(ROLES);
@@ -75,6 +76,15 @@ export async function PATCH(
       where: { id },
       data: { role: role as UserRole },
       select: { id: true, name: true, email: true, role: true },
+    });
+
+    await logAction({
+      actorId: session.user.id,
+      actorName: session.user.name,
+      action: "USER_ROLE_CHANGED",
+      targetType: "User",
+      targetId: updated.id,
+      metadata: { name: updated.name, email: updated.email, fromRole: existingUser.role, toRole: updated.role },
     });
 
     return NextResponse.json(updated);
