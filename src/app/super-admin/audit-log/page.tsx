@@ -24,6 +24,11 @@ const ACTION_LABELS: Record<string, string> = {
   PERIOD_CREATED: "Periode Dibuat",
   PERIOD_ACTIVATED: "Periode Diaktifkan",
   PERIOD_DEACTIVATED: "Periode Dinonaktifkan",
+  USER_BANNED: "Akun Dinonaktifkan",
+  USER_UNBANNED: "Akun Diaktifkan",
+  USER_SELF_DEACTIVATED: "Menonaktifkan Akun Sendiri",
+  SESSION_REVOKED: "Sesi Dipaksa Logout",
+  SESSION_REVOKED_ALL: "Semua Sesi Dipaksa Logout",
   SETTINGS_UPDATED: "Pengaturan Diperbarui",
 };
 

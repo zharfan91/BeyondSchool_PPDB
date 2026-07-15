@@ -11,6 +11,7 @@ import { LoadingState } from "@/components/shared/loading-state";
 import { Plus } from "lucide-react";
 
 interface ProgramQuota {
+  id: string;
   totalQuota: number;
   filledQuota: number;
   program: { name: string };
@@ -178,7 +179,7 @@ export default function PeriodsPage() {
                     period.programQuotas.map((p) => {
                       const pct = p.totalQuota > 0 ? Math.round((p.filledQuota / p.totalQuota) * 100) : 0;
                       return (
-                        <div key={p.program.name} className="flex items-center gap-4">
+                        <div key={p.id} className="flex items-center gap-4">
                           <span className="w-24 text-sm font-medium">{p.program.name}</span>
                           <div className="flex-1 h-2 rounded-full bg-surface-container">
                             <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />

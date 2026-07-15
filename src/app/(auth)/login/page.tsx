@@ -14,6 +14,18 @@ const roles = [
   { value: "admin", label: "Administrator" },
 ];
 
+// Post-login landing page per actual account role (not the tab the user
+// picked above — that's only a label/placeholder hint, never a security
+// decision; middleware is what actually enforces access either way).
+const ROLE_DASHBOARD: Record<string, string> = {
+  APPLICANT: "/dashboard",
+  STAFF: "/staff/applicants",
+  ADMIN: "/admin/dashboard",
+  FINANCE: "/finance/dashboard",
+  PRINCIPAL: "/principal/dashboard",
+  SUPER_ADMIN: "/admin/dashboard",
+};
+
 export default function LoginPage() {
   return (
     <Suspense fallback={null}>
@@ -42,7 +54,7 @@ function LoginForm() {
     const form = e.currentTarget as HTMLFormElement;
     const identity = (form.elements.namedItem("identity") as HTMLInputElement).value;
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
-    const { error: authError } = await authClient.signIn.email({
+    const { data, error: authError } = await authClient.signIn.email({
       email: identity,
       password,
       rememberMe: remember,
@@ -57,7 +69,8 @@ function LoginForm() {
       router.push(callbackUrl);
       return;
     }
-    router.push(role === "admin" ? "/admin/dashboard" : "/dashboard");
+    const actualRole = (data?.user as { role?: string } | undefined)?.role;
+    router.push(ROLE_DASHBOARD[actualRole ?? ""] ?? "/dashboard");
   };
 
   return (

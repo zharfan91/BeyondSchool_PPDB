@@ -49,6 +49,23 @@ async function main() {
     },
   });
 
+  const superAdmin = await prisma.user.create({
+    data: {
+      name: "Super Admin",
+      email: "superadmin@beyondschool.sch.id",
+      emailVerified: true,
+      role: "SUPER_ADMIN",
+      phone: "081111111110",
+      accounts: {
+        create: {
+          accountId: "superadmin",
+          providerId: "credential",
+          password: hashedPassword,
+        },
+      },
+    },
+  });
+
   const staff = await prisma.user.create({
     data: {
       name: "Staff Verifikasi",
@@ -133,7 +150,7 @@ async function main() {
   );
 
   // ─── PROFILES ───
-  const allUsers = [admin, staff, finance, principal, ...applicantUsers];
+  const allUsers = [admin, superAdmin, staff, finance, principal, ...applicantUsers];
   await Promise.all(
     allUsers.map((u) =>
       prisma.profile.create({

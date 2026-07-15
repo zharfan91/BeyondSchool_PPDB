@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { ROLES } from "@/lib/constants";
+import { ROLES, ELEVATED_ROLES } from "@/lib/constants";
 import { logAction } from "@/lib/audit";
 import type { UserRole } from "@prisma/client";
 
 const VALID_ROLES = Object.values(ROLES);
-const ELEVATED_ROLES = [ROLES.ADMIN, ROLES.SUPER_ADMIN];
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,6 +27,7 @@ export async function GET(request: NextRequest) {
         name: true,
         email: true,
         role: true,
+        banned: true,
         emailVerified: true,
         createdAt: true,
       },
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       name: u.name,
       email: u.email,
       role: u.role,
-      status: u.emailVerified ? "active" : "pending",
+      status: u.banned ? "banned" : u.emailVerified ? "active" : "pending",
     }));
 
     return NextResponse.json(mapped);
@@ -107,14 +107,15 @@ export async function POST(request: NextRequest) {
       select: { id: true, name: true, email: true, role: true },
     });
 
-    await logAction({
+    // Best-effort: never let an audit-log hiccup mask an already-created user.
+    logAction({
       actorId: session.user.id,
       actorName: session.user.name,
       action: "USER_CREATED",
       targetType: "User",
       targetId: updated.id,
       metadata: { name: updated.name, email: updated.email, role: updated.role },
-    });
+    }).catch((error) => console.error("Failed to write audit log:", error));
 
     return NextResponse.json(updated, { status: 201 });
   } catch (error) {

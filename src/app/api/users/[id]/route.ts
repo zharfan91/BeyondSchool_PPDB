@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { ROLES } from "@/lib/constants";
+import { ROLES, ELEVATED_ROLES } from "@/lib/constants";
 import { logAction } from "@/lib/audit";
 import type { UserRole } from "@prisma/client";
 
 const VALID_ROLES = Object.values(ROLES);
-const ELEVATED_ROLES = [ROLES.ADMIN, ROLES.SUPER_ADMIN];
 
 export async function PATCH(
   request: NextRequest,
@@ -78,14 +77,15 @@ export async function PATCH(
       select: { id: true, name: true, email: true, role: true },
     });
 
-    await logAction({
+    // Best-effort: never let an audit-log hiccup mask an already-successful role change.
+    logAction({
       actorId: session.user.id,
       actorName: session.user.name,
       action: "USER_ROLE_CHANGED",
       targetType: "User",
       targetId: updated.id,
       metadata: { name: updated.name, email: updated.email, fromRole: existingUser.role, toRole: updated.role },
-    });
+    }).catch((error) => console.error("Failed to write audit log:", error));
 
     return NextResponse.json(updated);
   } catch (error) {

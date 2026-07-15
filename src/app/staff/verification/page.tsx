@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { DataTable, Column } from "@/components/data/data-table";
 import { StatusBadge } from "@/components/data/status-badge";
 import { Button } from "@/components/ui/button";
+import { LoadingState } from "@/components/shared/loading-state";
 import { CheckCircle, XCircle } from "lucide-react";
 
 interface VerificationItem {
@@ -134,12 +135,16 @@ export default function VerificationPage() {
         title="Verifikasi Pendaftaran"
         description="Periksa dan verifikasi kelengkapan berkas pendaftar"
       />
-      <DataTable
-        columns={columns}
-        data={data}
-        searchable
-        searchKeys={["name", "registrationNumber"]}
-      />
+      {loading ? (
+        <LoadingState rows={5} />
+      ) : (
+        <DataTable
+          columns={columns}
+          data={data}
+          searchable
+          searchKeys={["name", "registrationNumber"]}
+        />
+      )}
     </div>
   );
 }

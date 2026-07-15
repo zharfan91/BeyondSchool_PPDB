@@ -10,6 +10,12 @@ export const ROLES = {
   SUPER_ADMIN: "SUPER_ADMIN",
 } as const;
 
+// Roles that require SUPER_ADMIN approval to create, promote to, or otherwise
+// act on (a plain ADMIN cannot touch an account already at this tier or
+// promote anyone into it). Deliberately typed as string[] (not `as const`) so
+// it can be checked against plain `string` role values without a cast.
+export const ELEVATED_ROLES: string[] = [ROLES.ADMIN, ROLES.SUPER_ADMIN];
+
 export const REGISTRATION_STATUS = {
   DRAFT: "DRAFT",
   SUBMITTED: "SUBMITTED",

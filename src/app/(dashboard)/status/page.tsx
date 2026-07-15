@@ -39,7 +39,6 @@ const REGISTRATION_STEPS = [
 function stepStatusFor(index: number, registrationStatus: string | null | undefined, selectionStatus: string | null | undefined) {
   const order = ["DRAFT", "SUBMITTED", "VERIFIED", "COMPLETED"];
   const currentIndex = order.indexOf(registrationStatus ?? "DRAFT");
-  const stepOrder = [1, 2, 3, 4, 5];
   if (index === 4) {
     return selectionStatus && selectionStatus !== "PENDING" ? "completed" : currentIndex >= 2 ? "current" : "upcoming";
   }

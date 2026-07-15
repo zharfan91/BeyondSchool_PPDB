@@ -4,11 +4,17 @@ import { prisma } from "@/lib/prisma";
 import { ROLES } from "@/lib/constants";
 import { logAction } from "@/lib/audit";
 
+// Settings is a singleton table. A fixed id (rather than findFirst-then-create)
+// makes this an atomic upsert at the database level, so concurrent first-access
+// requests can never create two rows.
+const SETTINGS_ID = "default-settings";
+
 async function getOrCreateSettings() {
-  const existing = await prisma.settings.findFirst();
-  if (existing) return existing;
-  return prisma.settings.create({
-    data: {
+  return prisma.settings.upsert({
+    where: { id: SETTINGS_ID },
+    update: {},
+    create: {
+      id: SETTINGS_ID,
       schoolName: "Beyond School",
       schoolAddress: "Jl. Pendidikan No. 1, Jakarta",
       bankName: "Bank Mandiri",
@@ -76,14 +82,15 @@ export async function PATCH(request: NextRequest) {
       },
     });
 
-    await logAction({
+    // Best-effort: never let an audit-log hiccup mask an already-successful update.
+    logAction({
       actorId: session.user.id,
       actorName: session.user.name,
       action: "SETTINGS_UPDATED",
       targetType: "Settings",
       targetId: updated.id,
       metadata: { schoolName: updated.schoolName, bankName: updated.bankName },
-    });
+    }).catch((error) => console.error("Failed to write audit log:", error));
 
     return NextResponse.json(updated);
   } catch (error) {

@@ -36,20 +36,18 @@ export function DataTable<T>({
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(0);
 
-  const items = data as any[];
-
   const filtered = search && searchKeys
-    ? items.filter((row: any) =>
+    ? data.filter((row) =>
         (searchKeys as string[]).some((key) =>
-          String(row[key]).toLowerCase().includes(search.toLowerCase())
+          String((row as Record<string, unknown>)[key]).toLowerCase().includes(search.toLowerCase())
         )
       )
-    : items;
+    : data;
 
   const sorted = sortKey
-    ? [...filtered].sort((a: any, b: any) => {
-        const aVal = a[sortKey];
-        const bVal = b[sortKey];
+    ? [...filtered].sort((a, b) => {
+        const aVal = (a as Record<string, string | number>)[sortKey];
+        const bVal = (b as Record<string, string | number>)[sortKey];
         if (aVal < bVal) return sortDir === "asc" ? -1 : 1;
         if (aVal > bVal) return sortDir === "asc" ? 1 : -1;
         return 0;
@@ -121,7 +119,7 @@ export function DataTable<T>({
               </tr>
             </thead>
             <tbody>
-              {paged.map((row: any, i: number) => (
+              {paged.map((row, i) => (
                 <tr
                   key={i}
                   className={cn(

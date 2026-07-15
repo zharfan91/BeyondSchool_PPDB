@@ -61,14 +61,15 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    await logAction({
+    // Best-effort: never let an audit-log hiccup mask an already-created period.
+    logAction({
       actorId: auth1.session!.user.id,
       actorName: auth1.session!.user.name,
       action: "PERIOD_CREATED",
       targetType: "AcademicPeriod",
       targetId: created.id,
       metadata: { name: created.name, year: created.year },
-    });
+    }).catch((error) => console.error("Failed to write audit log:", error));
 
     return NextResponse.json(created);
   } catch (error) {
@@ -89,25 +90,26 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Data tidak valid" }, { status: 400 });
     }
 
+    let updated;
     if (isActive) {
-      await prisma.$transaction([
+      const [, activated] = await prisma.$transaction([
         prisma.academicPeriod.updateMany({ data: { isActive: false } }),
         prisma.academicPeriod.update({ where: { id }, data: { isActive: true } }),
       ]);
+      updated = activated;
     } else {
-      await prisma.academicPeriod.update({ where: { id }, data: { isActive: false } });
+      updated = await prisma.academicPeriod.update({ where: { id }, data: { isActive: false } });
     }
 
-    const updated = await prisma.academicPeriod.findUnique({ where: { id } });
-
-    await logAction({
+    // Best-effort: never let an audit-log hiccup mask an already-successful update.
+    logAction({
       actorId: auth1.session!.user.id,
       actorName: auth1.session!.user.name,
       action: isActive ? "PERIOD_ACTIVATED" : "PERIOD_DEACTIVATED",
       targetType: "AcademicPeriod",
       targetId: id,
-      metadata: { name: updated?.name },
-    });
+      metadata: { name: updated.name },
+    }).catch((error) => console.error("Failed to write audit log:", error));
 
     return NextResponse.json(updated);
   } catch (error) {

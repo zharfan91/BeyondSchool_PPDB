@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { APIError } from "better-auth/api";
+import { ROLES } from "@/lib/constants";
+import { logAction } from "@/lib/audit";
 
 export async function GET(request: NextRequest) {
   try {
@@ -48,10 +50,41 @@ export async function PATCH(request: NextRequest) {
     };
 
     if (action === "deactivate") {
+      const currentRole = (session.user as { role?: string }).role;
+
+      if (currentRole === ROLES.SUPER_ADMIN) {
+        const otherActiveSuperAdmins = await prisma.user.count({
+          where: { role: ROLES.SUPER_ADMIN, banned: false, id: { not: session.user.id } },
+        });
+        if (otherActiveSuperAdmins === 0) {
+          return NextResponse.json(
+            {
+              error:
+                "Anda adalah satu-satunya Super Admin aktif. Tunjuk Super Admin lain sebelum menonaktifkan akun ini.",
+            },
+            { status: 400 }
+          );
+        }
+      }
+
       await prisma.user.update({
         where: { id: session.user.id },
-        data: { isActive: false },
+        data: { isActive: false, banned: true, banReason: "Dinonaktifkan sendiri oleh pengguna" },
       });
+
+      // Deactivating should end every session on every device immediately, not
+      // just the browser tab that clicked the button (that one is separately
+      // signed out client-side after this call succeeds).
+      await prisma.session.deleteMany({ where: { userId: session.user.id } });
+
+      logAction({
+        actorId: session.user.id,
+        actorName: session.user.name,
+        action: "USER_SELF_DEACTIVATED",
+        targetType: "User",
+        targetId: session.user.id,
+        metadata: { name: session.user.name, email: session.user.email },
+      }).catch((error) => console.error("Failed to write audit log:", error));
 
       return NextResponse.json({ success: true });
     }

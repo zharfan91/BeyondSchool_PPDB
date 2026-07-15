@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Megaphone, Pin } from "lucide-react";
+import { Badge, type BadgeProps } from "@/components/ui/badge";
+import { Calendar, Pin } from "lucide-react";
 
 interface Announcement {
   title: string;
@@ -48,7 +48,7 @@ const initialAnnouncements: Announcement[] = [
 export default function AnnouncementsPage() {
   const [announcements] = useState(initialAnnouncements);
 
-  const getCategoryColor = (cat: string) => {
+  const getCategoryColor = (cat: string): BadgeProps["variant"] => {
     switch (cat) {
       case "seleksi": return "warning";
       case "pendaftaran": return "info";
@@ -79,7 +79,7 @@ export default function AnnouncementsPage() {
                   {item.pinned && <Pin className="h-4 w-4 text-primary" />}
                   <CardTitle className="text-headline-md text-base">{item.title}</CardTitle>
                 </div>
-                <Badge variant={getCategoryColor(item.category) as any}>
+                <Badge variant={getCategoryColor(item.category)}>
                   {item.category}
                 </Badge>
               </div>

@@ -12,6 +12,7 @@ import {
   Award,
   ShieldCheck,
   History,
+  CheckCircle2,
 } from "lucide-react";
 
 export interface NavItem {
@@ -22,11 +23,35 @@ export interface NavItem {
 }
 
 export const navigation: NavItem[] = [
+  // "Dashboard" is split per role rather than one shared entry: ADMIN, FINANCE,
+  // and PRINCIPAL each have their own dashboard page (with real, role-specific
+  // stats) that used to have no sidebar link at all — every role landed on the
+  // generic APPLICANT /dashboard instead. STAFF has no dedicated dashboard
+  // page, so it isn't listed here; "Data Pendaftar" is effectively their
+  // landing view.
   {
     title: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
-    roles: ["APPLICANT", "STAFF", "ADMIN", "FINANCE", "PRINCIPAL", "SUPER_ADMIN"],
+    roles: ["APPLICANT"],
+  },
+  {
+    title: "Dashboard",
+    href: "/admin/dashboard",
+    icon: LayoutDashboard,
+    roles: ["ADMIN", "SUPER_ADMIN"],
+  },
+  {
+    title: "Dashboard",
+    href: "/finance/dashboard",
+    icon: LayoutDashboard,
+    roles: ["FINANCE"],
+  },
+  {
+    title: "Dashboard",
+    href: "/principal/dashboard",
+    icon: LayoutDashboard,
+    roles: ["PRINCIPAL"],
   },
   {
     title: "Pendaftaran",
@@ -56,13 +81,13 @@ export const navigation: NavItem[] = [
     title: "Data Pendaftar",
     href: "/staff/applicants",
     icon: Users,
-    roles: ["STAFF", "ADMIN"],
+    roles: ["STAFF", "ADMIN", "SUPER_ADMIN"],
   },
   {
     title: "Verifikasi",
     href: "/staff/verification",
     icon: ShieldCheck,
-    roles: ["STAFF"],
+    roles: ["STAFF", "ADMIN", "SUPER_ADMIN"],
   },
   {
     title: "Manajemen Pengguna",
@@ -80,13 +105,19 @@ export const navigation: NavItem[] = [
     title: "Pembayaran",
     href: "/finance/payments",
     icon: DollarSign,
-    roles: ["FINANCE", "ADMIN"],
+    roles: ["FINANCE", "ADMIN", "SUPER_ADMIN"],
   },
   {
     title: "Seleksi",
     href: "/selection/dashboard",
     icon: Award,
-    roles: ["STAFF", "ADMIN"],
+    roles: ["STAFF", "ADMIN", "SUPER_ADMIN"],
+  },
+  {
+    title: "Persetujuan Akhir",
+    href: "/principal/approvals",
+    icon: CheckCircle2,
+    roles: ["PRINCIPAL", "ADMIN", "SUPER_ADMIN"],
   },
   {
     title: "Laporan",

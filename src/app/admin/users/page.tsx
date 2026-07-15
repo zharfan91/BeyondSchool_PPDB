@@ -10,7 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import { ROLES } from "@/lib/constants";
+import { ROLES, ELEVATED_ROLES } from "@/lib/constants";
+import { LoadingState } from "@/components/shared/loading-state";
 
 interface UserItem {
   id: string;
@@ -18,6 +19,15 @@ interface UserItem {
   email: string;
   role: string;
   status: string;
+}
+
+interface UserSession {
+  id: string;
+  token: string;
+  ipAddress: string | null;
+  userAgent: string | null;
+  createdAt: string;
+  expiresAt: string;
 }
 
 const ALL_ROLES: string[] = [
@@ -36,11 +46,13 @@ const RESTRICTED_ROLES: string[] = [
   ROLES.APPLICANT,
 ];
 
-const ELEVATED_ROLES: string[] = [ROLES.ADMIN, ROLES.SUPER_ADMIN];
-
 function getColumns(
   currentRole: string | undefined,
-  onRoleChange: (row: UserItem, newRole: string) => void
+  currentUserId: string | undefined,
+  onRoleChange: (row: UserItem, newRole: string) => void,
+  onBanToggle: (row: UserItem) => void,
+  onViewSessions: (row: UserItem) => void,
+  busyId: string | null
 ): Column<UserItem>[] {
   const isSuperAdmin = currentRole === ROLES.SUPER_ADMIN;
   const selectableRoles = isSuperAdmin ? ALL_ROLES : RESTRICTED_ROLES;
@@ -92,15 +104,47 @@ function getColumns(
       key: "status",
       header: "Status",
       cell: (row) => (
-        <StatusBadge status={row.status === "active" ? "VERIFIED" : "REJECTED"} />
+        <StatusBadge
+          status={row.status === "banned" ? "REJECTED" : row.status === "pending" ? "PENDING" : "VERIFIED"}
+        />
       ),
+    },
+    {
+      key: "actions",
+      header: "Aksi",
+      cell: (row) => {
+        const rowIsElevated = ELEVATED_ROLES.includes(row.role);
+        const isSelf = row.id === currentUserId;
+        const canManage = !isSelf && (isSuperAdmin || !rowIsElevated);
+
+        return (
+          <div className="flex items-center gap-2">
+            {canManage && (
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busyId === row.id}
+                onClick={() => onBanToggle(row)}
+              >
+                {busyId === row.id ? "..." : row.status === "banned" ? "Aktifkan" : "Nonaktifkan"}
+              </Button>
+            )}
+            {isSuperAdmin && !isSelf && (
+              <Button size="sm" variant="outline" onClick={() => onViewSessions(row)}>
+                Sesi Aktif
+              </Button>
+            )}
+          </div>
+        );
+      },
     },
   ];
 }
 
 export default function UsersPage() {
-  const { data: session } = authClient.useSession();
-  const currentRole = (session?.user as { role?: string } | undefined)?.role;
+  const { data: authSession } = authClient.useSession();
+  const currentRole = (authSession?.user as { role?: string } | undefined)?.role;
+  const currentUserId = authSession?.user?.id;
 
   const [data, setData] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -108,6 +152,11 @@ export default function UsersPage() {
   const [draft, setDraft] = useState({ name: "", email: "", password: "", role: ROLES.APPLICANT as string });
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const [sessionsFor, setSessionsFor] = useState<UserItem | null>(null);
+  const [sessions, setSessions] = useState<UserSession[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
 
   const loadUsers = () => {
     fetch("/api/users")
@@ -188,7 +237,63 @@ export default function UsersPage() {
     }
   };
 
-  const columns = getColumns(currentRole, handleRoleChange);
+  const handleBanToggle = async (row: UserItem) => {
+    const action = row.status === "banned" ? "unban" : "ban";
+    if (action === "ban" && !confirm(`Nonaktifkan akun ${row.name}? Pengguna tidak akan bisa masuk lagi sampai diaktifkan kembali.`)) {
+      return;
+    }
+    setBusyId(row.id);
+    try {
+      const res = await fetch(`/api/users/${row.id}/ban`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(body?.error ?? "Gagal memproses aksi");
+        return;
+      }
+      loadUsers();
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const handleViewSessions = async (row: UserItem) => {
+    setSessionsFor(row);
+    setSessionsLoading(true);
+    try {
+      const res = await fetch(`/api/users/${row.id}/sessions`);
+      const body = await res.json().catch(() => []);
+      setSessions(Array.isArray(body) ? body : []);
+    } finally {
+      setSessionsLoading(false);
+    }
+  };
+
+  const handleRevokeSession = async (sessionToken: string) => {
+    if (!sessionsFor) return;
+    await fetch(`/api/users/${sessionsFor.id}/sessions`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionToken }),
+    });
+    handleViewSessions(sessionsFor);
+  };
+
+  const handleRevokeAllSessions = async () => {
+    if (!sessionsFor) return;
+    if (!confirm(`Paksa logout semua sesi aktif ${sessionsFor.name}?`)) return;
+    await fetch(`/api/users/${sessionsFor.id}/sessions`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    handleViewSessions(sessionsFor);
+  };
+
+  const columns = getColumns(currentRole, currentUserId, handleRoleChange, handleBanToggle, handleViewSessions, busyId);
 
   return (
     <div>
@@ -248,12 +353,52 @@ export default function UsersPage() {
         </Card>
       )}
 
-      <DataTable
-        columns={columns}
-        data={data}
-        searchable
-        searchKeys={["name", "email"]}
-      />
+      {sessionsFor && (
+        <Card className="mb-6">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-headline-md">Sesi Aktif — {sessionsFor.name}</CardTitle>
+            <Button size="sm" variant="outline" onClick={() => setSessionsFor(null)}>Tutup</Button>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {sessionsLoading ? (
+              <p className="text-sm text-muted-foreground">Memuat...</p>
+            ) : sessions.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Tidak ada sesi aktif.</p>
+            ) : (
+              <>
+                {sessions.map((s) => (
+                  <div key={s.id} className="flex items-center justify-between rounded-md border border-border px-4 py-3">
+                    <div className="text-sm">
+                      <p className="font-medium">{s.ipAddress ?? "IP tidak diketahui"}</p>
+                      <p className="text-xs text-muted-foreground truncate max-w-md">{s.userAgent ?? "-"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Login: {new Date(s.createdAt).toLocaleString("id-ID")} · Kedaluwarsa: {new Date(s.expiresAt).toLocaleString("id-ID")}
+                      </p>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => handleRevokeSession(s.token)}>
+                      Paksa Logout
+                    </Button>
+                  </div>
+                ))}
+                <Button size="sm" variant="outline" onClick={handleRevokeAllSessions}>
+                  Logout Semua Sesi
+                </Button>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {loading ? (
+        <LoadingState rows={5} />
+      ) : (
+        <DataTable
+          columns={columns}
+          data={data}
+          searchable
+          searchKeys={["name", "email"]}
+        />
+      )}
     </div>
   );
 }

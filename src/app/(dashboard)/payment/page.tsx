@@ -57,7 +57,7 @@ export default function PaymentPage() {
       setRegistrationId(data.registrationId ?? null);
       setPaymentTypes(data.paymentTypes ?? []);
       setPayments(data.payments ?? []);
-      setSettings(await settingsRes.json());
+      setSettings(settingsRes.ok ? await settingsRes.json() : null);
     } catch (error) {
       console.error("Failed to load payments:", error);
     } finally {

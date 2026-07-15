@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 
 export const applicantService = {
   async findByUserId(userId: string) {
@@ -50,10 +51,10 @@ export const applicantService = {
     programId?: string;
     search?: string;
   }) {
-    const where: Record<string, unknown> = {};
+    const where: Prisma.ApplicantWhereInput = {};
 
     if (filters?.status) {
-      where.registration = { status: filters.status };
+      where.registration = { status: filters.status as Prisma.EnumRegistrationStatusFilter["equals"] };
     }
 
     if (filters?.search) {
@@ -64,7 +65,7 @@ export const applicantService = {
     }
 
     const applicants = await prisma.applicant.findMany({
-      where: where as any,
+      where,
       include: {
         user: { select: { name: true, email: true } },
         registration: {
