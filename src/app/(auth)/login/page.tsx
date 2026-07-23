@@ -26,6 +26,21 @@ const ROLE_DASHBOARD: Record<string, string> = {
   SUPER_ADMIN: "/admin/dashboard",
 };
 
+// better-auth's own message is always in English and always present, so a
+// plain `authError.message || "fallback"` never actually falls back. Map the
+// error codes we can realistically hit here to clear Indonesian text instead.
+const LOGIN_ERROR_MESSAGES: Record<string, string> = {
+  INVALID_EMAIL: "Format email tidak valid. NISN belum didukung untuk login — gunakan email Anda.",
+  INVALID_EMAIL_OR_PASSWORD: "Email atau password salah.",
+  EMAIL_NOT_VERIFIED: "Email Anda belum diverifikasi.",
+  BANNED_USER: "Akun ini telah dinonaktifkan. Hubungi admin jika ini keliru.",
+};
+
+function loginErrorMessage(authError: { code?: string; message?: string } | null): string {
+  if (!authError) return "Email/NISN atau password salah";
+  return (authError.code && LOGIN_ERROR_MESSAGES[authError.code]) || "Gagal masuk. Silakan coba lagi.";
+}
+
 export default function LoginPage() {
   return (
     <Suspense fallback={null}>
@@ -52,7 +67,7 @@ function LoginForm() {
     setLoading(true);
     setError("");
     const form = e.currentTarget as HTMLFormElement;
-    const identity = (form.elements.namedItem("identity") as HTMLInputElement).value;
+    const identity = (form.elements.namedItem("identity") as HTMLInputElement).value.trim();
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
     const { data, error: authError } = await authClient.signIn.email({
       email: identity,
@@ -60,7 +75,7 @@ function LoginForm() {
       rememberMe: remember,
     });
     if (authError) {
-      setError(authError.message || "Email/NISN atau password salah");
+      setError(loginErrorMessage(authError));
       setLoading(false);
       return;
     }

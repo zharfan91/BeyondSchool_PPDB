@@ -7,6 +7,11 @@ async function main() {
   console.log("🌱 Seeding database...");
 
   // Clean existing data
+  await prisma.testAnswer.deleteMany();
+  await prisma.testAttempt.deleteMany();
+  await prisma.testQuestionOption.deleteMany();
+  await prisma.testQuestion.deleteMany();
+  await prisma.test.deleteMany();
   await prisma.note.deleteMany();
   await prisma.notification.deleteMany();
   await prisma.selectionCriteriaScore.deleteMany();
@@ -427,6 +432,130 @@ async function main() {
     )
   );
 
+  // ─── ONLINE TEST (published, ready to take) ───
+  const test = await prisma.test.create({
+    data: {
+      academicPeriodId: period.id,
+      title: "Tes Seleksi Masuk",
+      description:
+        "Kerjakan seluruh soal dengan teliti. Jawaban tersimpan otomatis. Setelah dikirim, jawaban tidak dapat diubah lagi.",
+      isPublished: true,
+      durationMinutes: 60,
+      shuffleQuestions: false,
+      shuffleOptions: false,
+      selectionWeight: 0.3,
+    },
+  });
+
+  type QSeed = {
+    type: "MULTIPLE_CHOICE" | "TRUE_FALSE" | "SHORT_ANSWER" | "ESSAY";
+    question: string;
+    points: number;
+    options?: { label: string; text: string; isCorrect: boolean }[];
+    correct?: boolean;
+    accepted?: string[];
+    key?: string;
+  };
+
+  const questionSeed: QSeed[] = [
+    {
+      type: "MULTIPLE_CHOICE",
+      question: "Ibu kota Indonesia adalah?",
+      points: 10,
+      options: [
+        { label: "A", text: "Jakarta", isCorrect: true },
+        { label: "B", text: "Bandung", isCorrect: false },
+        { label: "C", text: "Surabaya", isCorrect: false },
+        { label: "D", text: "Medan", isCorrect: false },
+      ],
+    },
+    {
+      type: "MULTIPLE_CHOICE",
+      question: "Hasil dari 15 × 4 adalah?",
+      points: 10,
+      options: [
+        { label: "A", text: "45", isCorrect: false },
+        { label: "B", text: "60", isCorrect: true },
+        { label: "C", text: "75", isCorrect: false },
+        { label: "D", text: "90", isCorrect: false },
+      ],
+    },
+    {
+      type: "MULTIPLE_CHOICE",
+      question: "Planet terbesar di tata surya adalah?",
+      points: 10,
+      options: [
+        { label: "A", text: "Bumi", isCorrect: false },
+        { label: "B", text: "Mars", isCorrect: false },
+        { label: "C", text: "Jupiter", isCorrect: true },
+        { label: "D", text: "Saturnus", isCorrect: false },
+      ],
+    },
+    {
+      type: "TRUE_FALSE",
+      question: "Air mendidih pada suhu 100°C di permukaan laut.",
+      points: 5,
+      correct: true,
+    },
+    {
+      type: "TRUE_FALSE",
+      question: "Matahari terbit dari arah barat.",
+      points: 5,
+      correct: false,
+    },
+    {
+      type: "SHORT_ANSWER",
+      question: "Siapa presiden pertama Republik Indonesia? (nama depan saja)",
+      points: 10,
+      accepted: ["Soekarno", "Sukarno"],
+    },
+    {
+      type: "SHORT_ANSWER",
+      question: "Hasil dari 100 dibagi 4 adalah?",
+      points: 10,
+      accepted: ["25"],
+    },
+    {
+      type: "ESSAY",
+      question: "Ceritakan secara singkat alasan Anda ingin bersekolah di sini.",
+      points: 20,
+      key: "Jawaban baik menyebutkan motivasi personal, tujuan akademik, dan kesungguhan. Nilai berdasarkan kejelasan dan relevansi.",
+    },
+    {
+      type: "ESSAY",
+      question: "Menurut Anda, apa arti disiplin bagi seorang pelajar?",
+      points: 20,
+      key: "Jawaban baik mendefinisikan disiplin dan mengaitkannya dengan tanggung jawab & konsistensi belajar.",
+    },
+  ];
+
+  await Promise.all(
+    questionSeed.map((q, i) =>
+      prisma.testQuestion.create({
+        data: {
+          testId: test.id,
+          type: q.type,
+          question: q.question,
+          points: q.points,
+          order: i,
+          essayAnswerKey: q.type === "ESSAY" ? q.key : null,
+          acceptedAnswers: q.type === "SHORT_ANSWER" ? q.accepted : undefined,
+          options:
+            q.type === "MULTIPLE_CHOICE"
+              ? { create: q.options }
+              : q.type === "TRUE_FALSE"
+              ? {
+                  create: [
+                    { label: "B", text: "Benar", isCorrect: q.correct === true },
+                    { label: "S", text: "Salah", isCorrect: q.correct === false },
+                  ],
+                }
+              : undefined,
+        },
+      })
+    )
+  );
+
   // ─── NOTIFICATIONS ───
   await Promise.all(
     applicantUsers.slice(0, 5).map((u) =>
@@ -473,6 +602,8 @@ async function main() {
   console.log("📝 Registrations created:", registrations.length);
   console.log("💰 Payments created:", paymentRegistrations.length);
   console.log("🏆 Selection results created:", selectionResults.length);
+  console.log(`📝 Online test seeded: "${test.title}" (published, ${questionSeed.length} soal, 60 menit)`);
+  console.log("🎯 Siap tes seleksi → login siti@email.com (status SUBMITTED) lalu buka menu Test → Mulai Tes");
 }
 
 main()

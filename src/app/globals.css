@@ -2,31 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @layer base {
   :root {
-    /* PPDB Design System — beyondDIGI DESIGN.md */
-    --background: 210 40% 98%;      /* #F8FAFC */
-    --foreground: 222 47% 11%;      /* #0F172A */
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    /* Claude-inspired warm palette — ivory paper, ink text, clay accent */
+    --background: 45 22% 95%;        /* #F4F3EE warm ivory */
+    --foreground: 30 8% 15%;         /* #292623 warm ink */
+    --card: 0 0% 100%;               /* white surfaces on ivory */
+    --card-foreground: 30 8% 15%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 222 100% 39%;        /* #004ac6 */
+    --popover-foreground: 30 8% 15%;
+    --primary: 271 31% 43%;          /* #6E4B8F plum */
     --primary-foreground: 0 0% 100%;
-    --secondary: 214 18% 39%;       /* #515f74 */
+    --secondary: 40 6% 40%;          /* #6B6862 warm taupe */
     --secondary-foreground: 0 0% 100%;
-    --muted: 240 15% 95%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 240 15% 95%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 72% 51%;       /* #DC2626 */
+    --muted: 44 16% 91%;             /* #ECEAE3 warm fill */
+    --muted-foreground: 38 7% 42%;   /* #6F6A62 warm gray */
+    --accent: 44 16% 91%;
+    --accent-foreground: 30 8% 15%;
+    --destructive: 8 59% 45%;        /* #B4402F warm red */
     --destructive-foreground: 0 0% 100%;
-    --border: 213 27% 89%;          /* #E2E8F0 */
-    --input: 213 27% 89%;
-    --ring: 222 100% 39%;           /* #004ac6 */
-    --radius: 0.5rem;
+    --border: 44 22% 88%;            /* #E6E2D9 warm hairline */
+    --input: 44 22% 88%;
+    --ring: 271 31% 43%;             /* plum focus ring */
+    --radius: 0.75rem;
   }
 }
 
@@ -36,6 +36,12 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
+  }
+  /* Editorial serif headings — the signature Claude trait. Applies to real
+     heading elements (PageHeader h1, CardTitle h3, public-page headings) so
+     no page markup needs to change. */
+  h1, h2, h3 {
+    @apply font-serif;
   }
 }
 

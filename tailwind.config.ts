@@ -23,68 +23,68 @@ const config: Config = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        // PPDB Design System — primary blue (beyondDIGI DESIGN.md)
+        // Warm-ivory palette with a plum accent (outside blue/green/orange/red)
         primary: {
-          DEFAULT: "#004ac6",
-          container: "#2563eb",   // button / interactive blue
-          hover: "#1d4ed8",
-          fixed: "#dbe1ff",
+          DEFAULT: "#6E4B8F",     // plum
+          container: "#6E4B8F",   // interactive
+          hover: "#5A3B77",       // darker plum for hover
+          fixed: "#ECE4F2",
           foreground: "#FFFFFF",
-          50: "#eff3ff",
-          100: "#dbe1ff",
-          200: "#b4c5ff",
-          300: "#7d9bff",
-          400: "#4d6ef5",
-          500: "#2563eb",
-          600: "#004ac6",
-          700: "#003ea8",
-          800: "#00174b",
+          50: "#F3EEF8",
+          100: "#E6DBF0",
+          200: "#CDB8E0",
+          300: "#B092CE",
+          400: "#8E6BB0",
+          500: "#6E4B8F",
+          600: "#5A3B77",
+          700: "#472E5E",
+          800: "#2F1E3F",
         },
         secondary: {
-          DEFAULT: "#515f74",
-          container: "#d5e3fd",   // sidebar active background
-          fixed: "#d5e3fd",
-          hover: "#3a485c",
+          DEFAULT: "#6B6862",     // warm taupe
+          container: "#ECE4F2",   // sidebar active — soft plum tint
+          fixed: "#ECE4F2",
+          hover: "#59554F",
           foreground: "#FFFFFF",
         },
         success: {
-          DEFAULT: "#16A34A",
+          DEFAULT: "#3F7A55",
           foreground: "#FFFFFF",
-          bg: "#F0FDF4",
-          border: "#BBF7D0",
+          bg: "#EDF3EC",
+          border: "#CADBCB",
         },
         warning: {
-          DEFAULT: "#F59E0B",
+          DEFAULT: "#B47818",
           foreground: "#FFFFFF",
-          bg: "#FFFBEB",
-          border: "#FDE68A",
+          bg: "#FAF2E0",
+          border: "#EDD9AE",
         },
         danger: {
-          DEFAULT: "#DC2626",
+          DEFAULT: "#B4402F",
           foreground: "#FFFFFF",
-          bg: "#FEF2F2",
-          border: "#FECACA",
+          bg: "#F7ECE8",
+          border: "#E9C7BE",
         },
         info: {
-          DEFAULT: "#2563EB",
+          DEFAULT: "#3B6E8F",
           foreground: "#FFFFFF",
-          bg: "#EFF6FF",
-          border: "#BFDBFE",
+          bg: "#EAF1F4",
+          border: "#C6DAE3",
         },
-        // PPDB Material Design surface tokens
+        // Warm surface tokens (ivory/cream)
         surface: {
-          DEFAULT: "#faf8ff",
-          bright: "#faf8ff",
-          dim: "#F8FAFC",
-          container: "#ededf9",
-          "container-low": "#f3f3fe",
-          "container-high": "#e7e7f3",
-          "container-highest": "#e1e2ed",
-          "container-lowest": "#ffffff",
+          DEFAULT: "#F4F3EE",
+          bright: "#FBFAF6",
+          dim: "#EFEDE6",
+          container: "#ECEAE3",
+          "container-low": "#F3F1EA",
+          "container-high": "#E7E4DB",
+          "container-highest": "#E0DCD1",
+          "container-lowest": "#FFFFFF",
         },
         outline: {
-          DEFAULT: "#737686",
-          variant: "#c3c6d7",
+          DEFAULT: "#8A8578",
+          variant: "#D8D3C7",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -108,11 +108,11 @@ const config: Config = {
         },
       },
       borderRadius: {
-        sm: "0.125rem",
-        DEFAULT: "0.25rem",
-        md: "0.375rem",
-        lg: "0.5rem",
-        xl: "0.75rem",
+        sm: "0.25rem",
+        DEFAULT: "0.375rem",
+        md: "0.5rem",      // buttons / inputs — softer
+        lg: "0.625rem",
+        xl: "0.875rem",    // cards
       },
       spacing: {
         sidebar: "260px",
@@ -120,6 +120,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
+        serif: ["Fraunces", "Georgia", "Cambria", "Times New Roman", "serif"],
         mono: ["JetBrains Mono", "monospace"],
       },
       fontSize: {
@@ -133,8 +134,9 @@ const config: Config = {
         code: ["13px", { lineHeight: "20px", fontWeight: "400" }],
       },
       boxShadow: {
-        "soft-drop": "0px 1px 3px rgba(0,0,0,0.1), 0px 10px 20px rgba(0,0,0,0.02)",
-        "high-elevation": "0px 4px 6px rgba(0,0,0,0.1), 0px 10px 24px rgba(0,0,0,0.08)",
+        // Softer, warm-tinted elevation to suit the flat editorial look.
+        "soft-drop": "0px 1px 2px rgba(41,37,33,0.04), 0px 1px 3px rgba(41,37,33,0.06)",
+        "high-elevation": "0px 4px 12px rgba(41,37,33,0.08), 0px 2px 4px rgba(41,37,33,0.04)",
       },
       keyframes: {
         "fade-in": {

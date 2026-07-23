@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   History,
   CheckCircle2,
+  GraduationCap,
 } from "lucide-react";
 
 export interface NavItem {
@@ -72,6 +73,12 @@ export const navigation: NavItem[] = [
     roles: ["APPLICANT"],
   },
   {
+    title: "Test",
+    href: "/test",
+    icon: GraduationCap,
+    roles: ["APPLICANT"],
+  },
+  {
     title: "Status Seleksi",
     href: "/status",
     icon: ClipboardCheck,
@@ -93,6 +100,12 @@ export const navigation: NavItem[] = [
     title: "Manajemen Pengguna",
     href: "/admin/users",
     icon: Users,
+    roles: ["ADMIN", "SUPER_ADMIN"],
+  },
+  {
+    title: "Test",
+    href: "/admin/test",
+    icon: GraduationCap,
     roles: ["ADMIN", "SUPER_ADMIN"],
   },
   {

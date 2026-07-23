@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 
-const publicRoutes = ["/", "/info", "/faq", "/contact", "/announcements"];
+// `/api/payments/webhook` is a server-to-server gateway callback (no session) —
+// it authenticates via signature, so it must bypass the auth redirect here.
+const publicRoutes = ["/", "/info", "/faq", "/contact", "/announcements", "/api/payments/webhook"];
 const authRoutes = ["/login", "/register", "/forgot-password", "/reset-password"];
 
 const roleProtectedRoutes: { prefix: string; roles: string[] }[] = [

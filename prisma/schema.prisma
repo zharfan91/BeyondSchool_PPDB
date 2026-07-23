@@ -216,6 +216,7 @@ model Registration {
   payments         Payment[]
   selectionResults SelectionResult[]
   notes            Note[]
+  testAttempt      TestAttempt?
 
   @@map("registrations")
 }
@@ -251,6 +252,7 @@ model AcademicPeriod {
   registrations Registration[]
   programs      Program[]
   programQuotas ProgramQuota[]
+  test          Test?
 
   @@map("academic_periods")
 }
@@ -328,6 +330,9 @@ model Payment {
   bankName       String?
   billKey        String?
   billCode       String?
+  snapToken      String?  @db.Text
+  paymentUrl     String?  @db.Text
+  gatewayOrderId String?
   paidAt         DateTime?
   expiredAt      DateTime?
   proofFile      String?
@@ -340,6 +345,7 @@ model Payment {
   registration Registration @relation(fields: [registrationId], references: [id])
   paymentType  PaymentType  @relation(fields: [paymentTypeId], references: [id])
 
+  @@index([gatewayOrderId])
   @@map("payments")
 }
 
@@ -450,6 +456,101 @@ model Settings {
   updatedAt                 DateTime @updatedAt
 
   @@map("settings")
+}
+
+model Test {
+  id               String    @id @default(cuid())
+  academicPeriodId String    @unique
+  title            String    @default("Tes Masuk")
+  description      String?   @db.Text
+  isPublished      Boolean   @default(false)
+  durationMinutes  Int? // null = tanpa batas waktu
+  opensAt          DateTime?
+  closesAt         DateTime?
+  shuffleQuestions Boolean   @default(false)
+  shuffleOptions   Boolean   @default(false)
+  selectionWeight  Decimal   @default(0.3)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  academicPeriod AcademicPeriod @relation(fields: [academicPeriodId], references: [id], onDelete: Cascade)
+  questions      TestQuestion[]
+  attempts       TestAttempt[]
+
+  @@map("tests")
+}
+
+model TestQuestion {
+  id             String           @id @default(cuid())
+  testId         String
+  type           TestQuestionType
+  question       String           @db.Text
+  order          Int              @default(0)
+  points         Int              @default(1)
+  essayAnswerKey String?          @db.Text
+  acceptedAnswers Json? // untuk SHORT_ANSWER: array string jawaban yang diterima
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  test    Test                 @relation(fields: [testId], references: [id], onDelete: Cascade)
+  options TestQuestionOption[]
+  answers TestAnswer[]
+
+  @@map("test_questions")
+}
+
+model TestQuestionOption {
+  id         String  @id @default(cuid())
+  questionId String
+  label      String
+  text       String
+  isCorrect  Boolean @default(false)
+
+  question TestQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers  TestAnswer[]
+
+  @@map("test_question_options")
+}
+
+model TestAttempt {
+  id             String            @id @default(cuid())
+  registrationId String            @unique
+  testId         String
+  status         TestAttemptStatus @default(IN_PROGRESS)
+  startedAt      DateTime          @default(now())
+  expiresAt      DateTime? // startedAt + durationMinutes, jika ada batas waktu
+  questionOrder  Json? // urutan id soal yang dipersist (untuk shuffle stabil)
+  submittedAt    DateTime?
+  gradedAt       DateTime?
+  totalScore     Decimal?
+  maxScore       Int?
+
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  test         Test         @relation(fields: [testId], references: [id])
+  answers      TestAnswer[]
+
+  @@map("test_attempts")
+}
+
+model TestAnswer {
+  id               String    @id @default(cuid())
+  attemptId        String
+  questionId       String
+  selectedOptionId String?
+  essayAnswer      String?   @db.Text
+  pointsAwarded    Decimal?
+  gradedBy         String?
+  gradedAt         DateTime?
+  feedback         String?   @db.Text
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  attempt        TestAttempt         @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question       TestQuestion        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedOption TestQuestionOption? @relation(fields: [selectedOptionId], references: [id])
+
+  @@unique([attemptId, questionId])
+  @@map("test_answers")
 }
 
 // ============ ENUMS ============
@@ -566,4 +667,17 @@ enum NotificationType {
   WARNING
   ERROR
   REMINDER
+}
+
+enum TestQuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_ANSWER
+  ESSAY
+}
+
+enum TestAttemptStatus {
+  IN_PROGRESS
+  SUBMITTED
+  GRADED
 }
